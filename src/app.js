@@ -101,7 +101,7 @@ app.get("/v2/auth/is_logged_in", async (req, res) => {
   }
 });
 
-const port = process.env.SERVER_PORT;
+const port = process.env.SERVER_PORT || 8080;
 
 //sever port listener
 app.listen(port, () => {
