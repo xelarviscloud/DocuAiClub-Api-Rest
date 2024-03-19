@@ -104,6 +104,6 @@ app.get("/v2/auth/is_logged_in", async (req, res) => {
 const port = process.env.SERVER_PORT || 8080;
 
 //sever port listener
-app.listen(port, () => {
-  console.log("Service Started...", port);
+server.listen(8080, "0.0.0.0", () => {
+  console.log("Server running at http://0.0.0.0:8080/");
 });
