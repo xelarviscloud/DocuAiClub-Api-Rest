@@ -47,7 +47,7 @@ loginRouter.post("/v2/user/login", async (req, res) => {
     if (role == "superadmin") {
       const email = dbUser.email;
       const username = dbUser.username;
-      const jwtKey = process.env.SECRET_KEY;
+      const jwtKey = "staysolve123";
       // Generate JWT
       const accessToken = jwt.sign({ email, username, role }, jwtKey);
 

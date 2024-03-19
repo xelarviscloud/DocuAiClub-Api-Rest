@@ -89,7 +89,7 @@ app.get("/v2/auth/is_logged_in", async (req, res) => {
     if (!token) {
       return res.json(false);
     }
-    const isValidToken = await jwt.verify(token, process.env.SECRET_KEY);
+    const isValidToken = await jwt.verify(token, "staysolve123");
 
     if (isValidToken) {
       return res.json(true);
