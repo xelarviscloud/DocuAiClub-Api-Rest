@@ -74,7 +74,7 @@ app.use(cookieParser());
 // add Api Routers
 app.use(loginRouter);
 app.use(databaseRouter);
-app.use(organizationRouter);
+//app.use(organizationRouter);
 
 // health check
 app.get("/", async (req, res) => {
