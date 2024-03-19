@@ -8,7 +8,6 @@ import jwt from "jsonwebtoken";
 
 import loginRouter from "./authentication/login/userLoginApi.js";
 import databaseRouter from "./healthcheck/mongodb-healthcheck.js";
-import organizationRouter from "./organizationManagement/organizationsApi.js";
 
 // configuration of .env file
 dotenv.config();
@@ -76,9 +75,17 @@ app.use(loginRouter);
 app.use(databaseRouter);
 //app.use(organizationRouter);
 
+const port = process.env.PORT || 3000;
 // health check
 app.get("/", async (req, res) => {
-  res.send("Base Path: API is running.");
+  res.send(
+    "Base Path: API is running." +
+      "Process Port:" +
+      process.env.PORT +
+      ";" +
+      "default Port:" +
+      port
+  );
 });
 
 //verify the logging token
@@ -101,8 +108,6 @@ app.get("/v2/auth/is_logged_in", async (req, res) => {
   }
 });
 
-const port = process.env.SERVER_PORT || 3000;
-
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`Server is running on port-- ${port}`);
 });
