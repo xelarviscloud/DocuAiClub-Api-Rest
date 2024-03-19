@@ -16,7 +16,18 @@ import { emailRegex, phoneRegex } from "../regex/regex.js";
 
 const organizationRouter = express.Router();
 
-// API for add organization data
+/**
+ * Org Health Check
+ */
+organizationRouter.get("/v2/organization", async (req, res) => {
+  return res.status(200).send({
+    Message: "Organization Controller - running okay!",
+  });
+});
+
+/**
+ * POST: Add New Org
+ */
 organizationRouter.post(
   "/v2/organization/add",
   authorization,

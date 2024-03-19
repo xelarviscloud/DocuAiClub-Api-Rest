@@ -8,7 +8,7 @@ import jwt from "jsonwebtoken";
 
 import loginRouter from "./authentication/login/userLoginApi.js";
 import databaseRouter from "./healthcheck/mongodb-healthcheck.js";
-
+import organizationRouter from "./organizationManagement/organizationsApi.js";
 // configuration of .env file
 dotenv.config();
 
@@ -73,7 +73,7 @@ app.use(cookieParser());
 // add Api Routers
 app.use(loginRouter);
 app.use(databaseRouter);
-//app.use(organizationRouter);
+app.use(organizationRouter);
 
 const port = process.env.PORT || 3000;
 // health check
