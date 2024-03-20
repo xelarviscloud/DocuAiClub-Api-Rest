@@ -10,7 +10,7 @@ const databaseConnection =
 const databaseRouter = express.Router();
 
 databaseRouter.get("/v2/database/healthcheck", async (req, res) => {
-  res.send("connectionUrl: " + databaseConnection);
+  res.send("connectionUrl: " + process.env.DATABASE_CONNECTION);
 });
 
 export default databaseRouter;
