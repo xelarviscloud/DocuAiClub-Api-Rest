@@ -1,7 +1,9 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
-import "dotenv/config";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 // Create an instance of an Express Router
 const app = express.Router();
