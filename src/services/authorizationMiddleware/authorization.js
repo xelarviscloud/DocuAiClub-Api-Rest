@@ -24,7 +24,7 @@ const authorization = (req, res, next) => {
       return res.status(403).send("Invalid Token.");
     }
 
-    const tokenData = jwt.verify(token, "staysolve123");
+    const tokenData = jwt.verify(token, process.env.token);
 
     req.email = tokenData.email;
     req.username = tokenData.username;
