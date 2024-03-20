@@ -19,7 +19,7 @@ const authorization = (req, res, next) => {
     token = token || postmanToken?.trim();
 
     if (!token) {
-      return res.status(200).send({ message: req.headers.authorization });
+      return res.status(403).send("Invalid Token.");
     }
 
     const tokenData = jwt.verify(token, "staysolve123");
@@ -30,9 +30,7 @@ const authorization = (req, res, next) => {
 
     return next();
   } catch (error) {
-    return res
-      .status(200)
-      .send({ message: error, reqAuthDetails: req.headers.authorization });
+    return res.status(403).send({ message: error });
   }
 };
 
