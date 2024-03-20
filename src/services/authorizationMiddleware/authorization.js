@@ -22,7 +22,7 @@ const authorization = (req, res, next) => {
       return res.status(200).send({ message: req.headers.authorization });
     }
 
-    const tokenData = jwt.verify(token, process.env.SECRET_KEY);
+    const tokenData = jwt.verify(token, "staysolve123");
 
     req.email = tokenData.email;
     req.username = tokenData.username;
