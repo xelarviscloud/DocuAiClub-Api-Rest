@@ -118,7 +118,7 @@ organizationRouter.post(
 /**
  * GET All Orgs
  */
-organizationRouter.get("/v2/organization/get/all", async (req, res) => {
+organizationRouter.get("/v2/organization/get", async (req, res) => {
   try {
     // Calculate page and pageSize using the function
     const { page, pageSize, skip } = calculatePagination(req);
