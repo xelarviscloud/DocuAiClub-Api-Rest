@@ -5,26 +5,31 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// Create an instance of an Express Router
 const app = express.Router();
 
 // Use the cookie-parser middleware
 app.use(cookieParser());
 
-// Authentication middleware
+/**
+ * Authorization Middleware
+ * @param {} req
+ * @param {*} res
+ * @param {*} next
+ * @returns
+ */
 const authorization = (req, res, next) => {
   try {
-    const authorizationHeader = req.headers.authorization;
-    const postmanToken = req.cookies.jwtToken;
-    console.log("test token", authorizationHeader, postmanToken);
-    let token = authorizationHeader?.replace("Bearer ", "").trim();
-    token = token || postmanToken?.trim();
+    const authHeader = req.headers.authorization;
+    const jwtTokenFromCookie = req.cookies.jwtToken;
+    let token = authHeader?.replace("token ", "").trim();
+    token = token || jwtTokenFromCookie?.trim();
 
     if (!token) {
       return res.status(403).send("Invalid Token.");
     }
 
-    const tokenData = jwt.verify(token, process.env.token);
+    // Verify JWT token, and assign attributes
+    const tokenData = jwt.verify(token, process.env.SECRET_KEY);
 
     req.email = tokenData.email;
     req.username = tokenData.username;
@@ -36,5 +41,4 @@ const authorization = (req, res, next) => {
   }
 };
 
-// Export the authorization middleware for use in other parts of the application
 export default authorization;
