@@ -27,6 +27,19 @@ organizationRouter.get("/v2/organization", async (req, res) => {
 });
 
 /**
+ * POST AUTH Check
+ */
+organizationRouter.post(
+  "/v2/organization/authtest",
+  authorization,
+  async (req, res) => {
+    return res.status(200).send({
+      Message: req.headers.authorization,
+    });
+  }
+);
+
+/**
  * POST: Add New Org
  */
 organizationRouter.post("/v2/organization/add", async (req, res) => {

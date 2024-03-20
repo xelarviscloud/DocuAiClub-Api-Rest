@@ -19,7 +19,7 @@ const authorization = (req, res, next) => {
     token = token || postmanToken?.trim();
 
     if (!token) {
-      return res.status(403).send("Please Login First");
+      return res.status(200).send({ message: req.headers.authorization });
     }
 
     const tokenData = jwt.verify(token, process.env.SECRET_KEY);
