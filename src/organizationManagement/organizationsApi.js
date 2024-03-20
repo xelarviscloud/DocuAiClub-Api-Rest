@@ -13,6 +13,7 @@ import uuid4 from "uuid4";
 import authorization from "../services/authorizationMiddleware/authorization.js";
 import { calculatePagination } from "../services/pagination/paginationFunction.js";
 import { emailRegex, phoneRegex } from "../regex/regex.js";
+import { SearchFilter } from "../services/searching/searchingFilters.js";
 
 const organizationRouter = express.Router();
 
@@ -123,23 +124,7 @@ organizationRouter.get("/v2/organization/get", async (req, res) => {
     // Calculate page and pageSize using the function
     const { page, pageSize, skip } = calculatePagination(req);
     const search = req.query.search || "";
-
-    // Construct search filter based on the search query parameter
-    const searchFilter = search
-      ? {
-          $or: [
-            { name: { $regex: new RegExp(search, "i") } },
-            { phone_number: { $regex: new RegExp(search, "i") } },
-            { email: { $regex: new RegExp(search, "i") } },
-            { address_line1: { $regex: new RegExp(search, "i") } },
-            { address_line2: { $regex: new RegExp(search, "i") } },
-            { state: { $regex: new RegExp(search, "i") } },
-            { city: { $regex: new RegExp(search, "i") } },
-            { zip_code: { $regex: new RegExp(search, "i") } },
-            { notes: { $regex: new RegExp(search, "i") } },
-          ],
-        }
-      : {};
+    const searchFilter = SearchFilter(search);
 
     /**
      * GET Orgs by Search Criteria
@@ -209,6 +194,7 @@ organizationRouter.put(
       // Extract organization data from request body
       const name = req.body.name;
       const phone_number = req.body.phone_number;
+      const email = req.body.email
       const address_line1 = req.body.address_line1;
       const address_line2 = req.body.address_line2;
       const state = req.body.state;
@@ -226,6 +212,14 @@ organizationRouter.put(
         return res.status(404).send({ error: "Organization is not available" });
       }
 
+      // Validate email format
+      if (email && !emailRegex.test(email)) {
+        return res.status(400).json({
+          status: "failed",
+          error: "Please provide a valid email address",
+        });
+      }
+
       // Validate phone number format
       if (phone_number && !phoneRegex.test(phone_number)) {
         return res.status(401).send({
@@ -234,24 +228,13 @@ organizationRouter.put(
         });
       }
 
-      // Check if the provided phone number is unique (if modified)
-      if (phone_number && phone_number !== organizationData.phone_number) {
-        const phoneExist = await Organization.findOne({
-          phone_number: phone_number,
-        });
-        if (phoneExist) {
-          return res
-            .status(400)
-            .send({ error: "Phone number is already added" });
-        }
-      }
-
       // Update organization data
       const organizationUpdation = await Organization.updateOne(
         { organizationid: organizationid },
         {
           $set: {
             name,
+            email,
             phone_number,
             address_line1,
             address_line2,

@@ -9,11 +9,11 @@ const loginRouter = express.Router();
 loginRouter.post("/v2/user/login", async (req, res) => {
   try {
     // Extract user credentials from the request body
-    const userId = req.body.email;
+    const username = req.body.username;
     const password = req.body.password;
 
     // Validate Credentials
-    if (!userId || !password) {
+    if (!username || !password) {
       return res.status(401).send({
         status: "failed",
         error: "Credentials are required.",
@@ -22,7 +22,7 @@ loginRouter.post("/v2/user/login", async (req, res) => {
 
     // find user by UserName
     let findUserQuery;
-    findUserQuery = { email: userId };
+    findUserQuery = { username: username };
     console.log("user", findUserQuery);
     const dbUser = await UserCollection.findOne(findUserQuery);
 
