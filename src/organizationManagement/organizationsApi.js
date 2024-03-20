@@ -75,15 +75,6 @@ organizationRouter.post(
         });
       }
 
-      // Validate phone number format (+1 followed by 10 digits)
-      if (!phoneRegex.test(phone_number)) {
-        return res.status(400).json({
-          status: "failed",
-          error:
-            "Please provide a phone number in US format (+1 followed by 10 digits)",
-        });
-      }
-
       // Save data in the database Organization collection
       const organizationData = new Organization({
         organizationid: uuid4(), // Generating a unique organization ID
@@ -194,7 +185,7 @@ organizationRouter.put(
       // Extract organization data from request body
       const name = req.body.name;
       const phone_number = req.body.phone_number;
-      const email = req.body.email
+      const email = req.body.email;
       const address_line1 = req.body.address_line1;
       const address_line2 = req.body.address_line2;
       const state = req.body.state;
