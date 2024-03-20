@@ -76,9 +76,9 @@ app.use(cookieParser());
 app.use(loginRouter);
 app.use(databaseRouter);
 app.use(organizationRouter);
-app.use(locationRouter)
+app.use(locationRouter);
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 4000;
 // health check
 app.get("/", async (req, res) => {
   res.send(
