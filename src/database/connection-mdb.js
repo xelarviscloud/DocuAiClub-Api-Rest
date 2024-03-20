@@ -3,8 +3,9 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const databaseConnection = process.env.DATABASE_CONNECTION;
-//"mongodb+srv://staysolveadmin:qA9FyrjXJt*Er2$@stay-solve-database.sni6cfi.mongodb.net/stay-solve-backend";
+//const databaseConnection = process.env.DATABASE_CONNECTION;
+const databaseConnection =
+  "mongodb+srv://staysolveadmin:qA9FyrjXJt*Er2$@stay-solve-database.sni6cfi.mongodb.net/stay-solve-backend";
 
 mongoose
   .connect(databaseConnection)
