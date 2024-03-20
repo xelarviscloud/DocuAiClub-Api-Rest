@@ -30,7 +30,9 @@ const authorization = (req, res, next) => {
 
     return next();
   } catch (error) {
-    return res.send{{message:error}};
+    return res
+      .status(200)
+      .send({ message: error, reqAuthDetails: req.headers.authorization });
   }
 };
 
