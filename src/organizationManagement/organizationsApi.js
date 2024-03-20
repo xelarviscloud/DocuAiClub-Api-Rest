@@ -32,10 +32,10 @@ organizationRouter.get("/v2/organization", async (req, res) => {
 organizationRouter.post("/v2/organization/add", async (req, res) => {
   try {
     // Check if the user has superadmin role
-    if (!(req.role == "superadmin" || req.role == "organizationadmin")) {
-      res.status(403).send("You don't have access");
-      return;
-    }
+    // if (!(req.role == "superadmin" || req.role == "organizationadmin")) {
+    //   res.status(403).send("You don't have access");
+    //   return;
+    // }
 
     // Extract data from the request body
     const name = req.body.name;
