@@ -42,77 +42,83 @@ organizationRouter.post(
 /**
  * POST: Add New Org
  */
-organizationRouter.post("/v2/organization/add", async (req, res) => {
-  try {
-    // Check if the user has superadmin role
-    // if (!(req.role == "superadmin" || req.role == "organizationadmin")) {
-    //   res.status(403).send("You don't have access");
-    //   return;
-    // }
+organizationRouter.post(
+  "/v2/organization/add",
+  authorization,
+  async (req, res) => {
+    try {
+      // Check if the user has superadmin role
+      // if (!(req.role == "superadmin" || req.role == "organizationadmin")) {
+      //   res.status(403).send("You don't have access");
+      //   return;
+      // }
 
-    // Extract data from the request body
-    const name = req.body.name;
-    const phone_number = req.body.phone_number;
-    const email = req.body.email;
-    const address_line1 = req.body.address_line1;
-    const address_line2 = req.body.address_line2;
-    const state = req.body.state;
-    const city = req.body.city;
-    const zip_code = req.body.zip_code;
-    const notes = req.body.notes;
+      // Extract data from the request body
+      const name = req.body.name;
+      const phone_number = req.body.phone_number;
+      const email = req.body.email;
+      const address_line1 = req.body.address_line1;
+      const address_line2 = req.body.address_line2;
+      const state = req.body.state;
+      const city = req.body.city;
+      const zip_code = req.body.zip_code;
+      const notes = req.body.notes;
 
-    // Verify the incoming data
-    if (
-      !name ||
-      !phone_number ||
-      !email ||
-      !address_line1 ||
-      !state ||
-      !city ||
-      !zip_code
-    ) {
-      return res.status(400).json({
-        status: "failed",
-        error: "Please provide all required fields",
+      // Verify the incoming data
+      if (
+        !name ||
+        !phone_number ||
+        !email ||
+        !address_line1 ||
+        !state ||
+        !city ||
+        !zip_code
+      ) {
+        return res.status(400).json({
+          status: "failed",
+          error: "Please provide all required fields",
+        });
+      }
+
+      // Validate email format
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({
+          status: "failed",
+          error: "Please provide a valid email address",
+        });
+      }
+
+      // Save data in the database Organization collection
+      const organizationData = new Organization({
+        organizationid: uuid4(), // Generating a unique organization ID
+        name,
+        phone_number,
+        email,
+        address_line1,
+        address_line2,
+        state,
+        city,
+        zip_code,
+        notes,
       });
-    }
 
-    // Validate email format
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({
-        status: "failed",
-        error: "Please provide a valid email address",
+      await organizationData.save(); // Saving organization data
+
+      // Return success response
+      res.status(201).json({
+        status: "success",
+        message: "Organization added successfully",
+        organization: organizationData,
       });
+    } catch (error) {
+      // Handle any errors
+      console.error("Error:", error);
+      res
+        .status(500)
+        .json({ status: "failed", error: "Internal server error" });
     }
-
-    // Save data in the database Organization collection
-    const organizationData = new Organization({
-      organizationid: uuid4(), // Generating a unique organization ID
-      name,
-      phone_number,
-      email,
-      address_line1,
-      address_line2,
-      state,
-      city,
-      zip_code,
-      notes,
-    });
-
-    await organizationData.save(); // Saving organization data
-
-    // Return success response
-    res.status(201).json({
-      status: "success",
-      message: "Organization added successfully",
-      organization: organizationData,
-    });
-  } catch (error) {
-    // Handle any errors
-    console.error("Error:", error);
-    res.status(500).json({ status: "failed", error: "Internal server error" });
   }
-});
+);
 
 /**
  * GET All Orgs
