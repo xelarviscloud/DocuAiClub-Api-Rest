@@ -35,7 +35,7 @@ organizationRouter.post(
   async (req, res) => {
     try {
       // Check if the user has superadmin role
-      if (req.role !== "superadmin") {
+      if (!(req.role == "superadmin" || req.role == "organizationadmin")) {
         res.status(403).send("You don't have access");
         return;
       }
