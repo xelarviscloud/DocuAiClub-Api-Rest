@@ -9,7 +9,7 @@ databaseRouter.get("/v2/database/healthcheck", async (req, res) => {
   const response = {
     message: {
       okay: "Database health check okay!",
-      env_database: process.env.DATABASE_CONNECTION,
+      database: process.env.DATABASE_CONNECTION || "not found",
     },
   };
   return res.status(200).send({ response });
