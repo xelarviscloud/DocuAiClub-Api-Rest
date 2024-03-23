@@ -12,7 +12,7 @@ import Organization from "../models/organization.js"; // Importing the Organizat
 import uuid4 from "uuid4";
 import authorization from "../services/authorizationMiddleware/authorization.js";
 import { calculatePagination } from "../services/pagination/paginationFunction.js";
-import { emailRegex, phoneRegex } from "../regex/regex.js";
+import { emailRegex, phoneRegex } from "../utility/regex.js";
 import { SearchFilter } from "../services/searching/searchingFilters.js";
 
 const organizationRouter = express.Router();
@@ -84,7 +84,7 @@ organizationRouter.post(
       if (!emailRegex.test(email)) {
         return res.status(400).json({
           status: "failed",
-          error: "Please provide a valid email address",
+          error: "Invalid Email Address.",
         });
       }
 
@@ -275,7 +275,7 @@ organizationRouter.put(
       // Check if the user has the required role
       if (req.role !== "superadmin") {
         // If not authorized, send a 403 Forbidden response
-        res.status(403).send("You don't have access");
+        res.status(403).send("Authentication failed.");
         return;
       }
 

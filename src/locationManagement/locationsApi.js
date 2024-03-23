@@ -11,7 +11,7 @@ import express from "express";
 import Location from "../models/location.js"; //Importing the location model
 import uuid4 from "uuid4";
 import authorization from "../services/authorizationMiddleware/authorization.js";
-import { emailRegex, phoneRegex } from "../regex/regex.js";
+import { emailRegex, phoneRegex } from "../utility/regex.js";
 import { calculatePagination } from "../services/pagination/paginationFunction.js";
 import { SearchFilter } from "../services/searching/searchingFilters.js";
 import Organization from "../models/organization.js";

@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import "dotenv/config";
 import cors from "cors";
 import bodyParser from "body-parser";
+import multer from "multer";
 import cookieParser from "cookie-parser";
 import jwt from "jsonwebtoken";
 
@@ -10,7 +11,7 @@ import loginRouter from "./authentication/login/userLoginApi.js";
 import databaseRouter from "./healthcheck/mongodb-healthcheck.js";
 import organizationRouter from "./organizationManagement/organizationsApi.js";
 import locationRouter from "./locationManagement/locationsApi.js";
-
+import organizationUsersRouter from "./userManagement/organizationUsersApi.js";
 // configuration of .env file
 dotenv.config();
 
@@ -67,7 +68,8 @@ app.use(cors());
 // Adjust the limit for handling request bodies
 app.use(bodyParser.json({ limit: "20mb" }));
 app.use(bodyParser.urlencoded({ limit: "20mb", extended: true }));
-
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(multer().none());
 app.use(express.json());
 
 app.use(cookieParser());
@@ -77,6 +79,7 @@ app.use(loginRouter);
 app.use(databaseRouter);
 app.use(organizationRouter);
 app.use(locationRouter);
+app.use(organizationUsersRouter);
 
 const port = process.env.PORT || 4000;
 // health check
