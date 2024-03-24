@@ -22,7 +22,7 @@ loginRouter.post("/v2/user/login", async (req, res) => {
 
     // find user by UserName
     let findUserQuery;
-    findUserQuery = { username: username };
+    findUserQuery = { userName: username };
     console.log("user", findUserQuery);
     const dbUser = await UserCollection.findOne(findUserQuery);
 

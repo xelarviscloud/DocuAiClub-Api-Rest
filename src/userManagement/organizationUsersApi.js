@@ -36,11 +36,38 @@ organizationUsersRouter.get(
       // If Id= Specific Org Id then get Users for that Org only.
       const orgIdQuery = shortCircuitEvaluation(req.query?.organizationId);
 
-      console.log();
-      const orgUsers = await UserCollection.find({
-        role: "organizationadmin",
-        organizationid: orgIdQuery || { $ne: null },
-      }).sort({ _id: -1 });
+      // const orgUsers = await UserCollection.find({
+      //   role: "organizationadmin",
+      //   organizationid: orgIdQuery || { $ne: null },
+      // }).sort({ _id: -1 });
+
+      // const orgUsers = await UserCollection.aggregate({
+      //   $lookup: {
+      //     from: "organization",
+      //     localField: "organizationid",
+      //     foreignField: "organizationid",
+      //     pipeline: [],
+      //     as: "users_comments",
+      //   },
+      // });
+
+      const orgUsers = await UserCollection.aggregate([
+        {
+          $lookup: {
+            from: "organization",
+            localField: "organizationid",
+            foreignField: "organizationuserid",
+            as: "org_users",
+          },
+        },
+      ]);
+
+      console.log(orgUsers);
+      // .find({
+      //   role: "organizationadmin",
+      //   organizationid: orgIdQuery || { $ne: null },
+      // })
+      // .sort({ _id: -1 });
 
       return res.status(200).send({
         success: true,

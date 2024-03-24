@@ -1,72 +1,70 @@
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 
 const locationSchema = new mongoose.Schema({
+  locationId: {
+    type: String,
+  },
 
-    locationid: {
-        type: String
-    },
+  locationOrgId: {
+    type: String,
+  },
 
-    organizationid: {
-        type: String
-    },
+  locationName: {
+    type: String,
+  },
 
-    name: {
-        type: String
-    },
+  phoneNumber: {
+    type: String,
+  },
 
-    phone_number: {
-        type: String
-    },
+  emailAddress: {
+    type: String,
+  },
 
-    email: {
-        type: String
-    },
+  addressLine1: {
+    type: String,
+  },
 
-    address_line1: {
-        type: String
-    },
+  addressLine2: {
+    type: String,
+  },
 
-    address_line2: {
-        type: String
-    },
+  state: {
+    type: String,
+  },
 
-    state: {
-        type: String
-    },
+  city: {
+    type: String,
+  },
 
-    city: {
-        type: String
-    },
+  zipCode: {
+    type: String,
+  },
 
-    zip_code: {
-        type: String
-    },
+  notes: {
+    type: String,
+  },
 
-    notes: {
-        type: String
-    },
+  isDeleted: {
+    type: String,
+    default: false,
+  },
 
-    isDeleted: {
-        type: String,
-        default: false
-    },
+  isDisable: {
+    type: String,
+    default: false,
+  },
 
-    isDisable: {
-        type: String,
-        default: false
-    },
+  createdAt: {
+    type: Number,
+    default: new Date(),
+  },
 
-    createdAt: {
-        type: Number,
-        default: new Date()
-    },
+  updatedAt: {
+    type: Number,
+  },
+});
 
-    updatedAt: {
-        type: Number
-    }
+const Location = new mongoose.model("location", locationSchema);
 
-})
-
-const Location = new mongoose.model("location", locationSchema)
-
-export default Location
+export default Location;

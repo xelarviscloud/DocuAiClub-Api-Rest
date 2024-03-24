@@ -47,32 +47,26 @@ organizationRouter.post(
   authorization,
   async (req, res) => {
     try {
-      // Check if the user has superadmin role
-      // if (!(req.role == "superadmin" || req.role == "organizationadmin")) {
-      //   res.status(403).send("You don't have access");
-      //   return;
-      // }
-
-      // Extract data from the request body
-      const name = req.body.name;
-      const phone_number = req.body.phone_number;
-      const email = req.body.email;
-      const address_line1 = req.body.address_line1;
-      const address_line2 = req.body.address_line2;
-      const state = req.body.state;
-      const city = req.body.city;
-      const zip_code = req.body.zip_code;
-      const notes = req.body.notes;
+      // Extract organization data from request body
+      const _orgName = req.body.organizationName;
+      const _phoneNumber = req.body.phoneNumber;
+      const _emailAddress = req.body.emailAddress;
+      const _addLine1 = req.body.addressLine1;
+      const _addLine2 = req.body.addressLine2;
+      const _state = req.body.state;
+      const _city = req.body.city;
+      const _zipCode = req.body.zipCode;
+      const _notes = req.body.notes;
 
       // Verify the incoming data
       if (
-        !name ||
-        !phone_number ||
-        !email ||
-        !address_line1 ||
-        !state ||
-        !city ||
-        !zip_code
+        !_orgName ||
+        !_phoneNumber ||
+        !_emailAddress ||
+        !_addLine1 ||
+        !_state ||
+        !_city ||
+        !_zipCode
       ) {
         return res.status(400).json({
           status: "failed",
@@ -81,34 +75,41 @@ organizationRouter.post(
       }
 
       // Validate email format
-      if (!emailRegex.test(email)) {
+      if (!emailRegex.test(_emailAddress)) {
         return res.status(400).json({
           status: "failed",
           error: "Invalid Email Address.",
         });
       }
 
+      if (!phoneRegex.test(_phoneNumber)) {
+        return res.status(400).json({
+          status: "failed",
+          error: "Invalid Phone Number.",
+        });
+      }
+
       // Save data in the database Organization collection
-      const organizationData = new Organization({
-        organizationid: uuid4(), // Generating a unique organization ID
-        name,
-        phone_number,
-        email,
-        address_line1,
-        address_line2,
-        state,
-        city,
-        zip_code,
-        notes,
+      const dbReadyObject = new Organization({
+        organizationId: uuid4(),
+        organizationName: _orgName,
+        phoneNumber: _phoneNumber,
+        emailAddress: _emailAddress,
+        addressLine1: _addLine1,
+        addressLine2: _addLine2,
+        state: _state,
+        city: _city,
+        zipCode: _zipCode,
+        notes: _notes,
       });
 
-      await organizationData.save(); // Saving organization data
+      await dbReadyObject.save(); // Saving organization data
 
       // Return success response
       res.status(201).json({
         status: "success",
         message: "Organization added successfully",
-        organization: organizationData,
+        organization: dbReadyObject,
       });
     } catch (error) {
       // Handle any errors
@@ -162,18 +163,20 @@ organizationRouter.get("/v2/organization/get", async (req, res) => {
  * GET: Single Org By Id
  */
 organizationRouter.get(
-  "/v2/organization/get/:organizationid",
+  "/v2/organization/get/:organizationId",
   async (req, res) => {
     try {
-      const organizationid = req.params.organizationid;
+      const _orgId = req.params.organizationId;
 
       // Query the database for organization data based on organization ID, pagination, and sorting
-      const organizationData = await Organization.findOne({ organizationid });
+      const dbReadyObject = await Organization.findOne({
+        organizationId: _orgId,
+      });
 
       // Send response with organization data and pagination information
       return res.status(200).send({
         success: true,
-        data: organizationData,
+        data: dbReadyObject,
       });
     } catch (error) {
       // Handle errors
@@ -189,63 +192,61 @@ organizationRouter.get(
  * PUT: Update Org Info
  */
 organizationRouter.put(
-  "/v2/organization/edit/:organizationid",
+  "/v2/organization/edit/:organizationId",
   async (req, res) => {
     try {
       // Extract organization ID from request parameters
-      const organizationid = req.params.organizationid;
+      const _orgId = req.params.organizationId;
 
       // Extract organization data from request body
-      const name = req.body.name;
-      const phone_number = req.body.phone_number;
-      const email = req.body.email;
-      const address_line1 = req.body.address_line1;
-      const address_line2 = req.body.address_line2;
-      const state = req.body.state;
-      const city = req.body.city;
-      const zip_code = req.body.zip_code;
-      const notes = req.body.notes;
-
-      // Find the organization data by its ID
-      const organizationData = await Organization.findOne({
-        organizationid: organizationid,
-      });
+      const _orgName = req.body.organizationName;
+      const _phoneNumber = req.body.phoneNumber;
+      const _emailAddress = req.body.emailAddress;
+      const _addLine1 = req.body.addressLine1;
+      const _addLine2 = req.body.addressLine2;
+      const _state = req.body.state;
+      const _city = req.body.city;
+      const _zipCode = req.body.zipCode;
+      const _notes = req.body.notes;
 
       // Check if organization exists
-      if (!organizationData) {
+      if (
+        !(await Organization.findOne({
+          organizationId: _orgId,
+        }))
+      ) {
         return res.status(404).send({ error: "Organization is not available" });
       }
 
       // Validate email format
-      if (email && !emailRegex.test(email)) {
+      if (!emailRegex.test(_emailAddress)) {
         return res.status(400).json({
           status: "failed",
-          error: "Please provide a valid email address",
+          error: "Invalid Email Address.",
         });
       }
 
-      // Validate phone number format
-      if (phone_number && !phoneRegex.test(phone_number)) {
-        return res.status(401).send({
+      if (!phoneRegex.test(_phoneNumber)) {
+        return res.status(400).json({
           status: "failed",
-          error: "Phone number must be in US format (+1 followed by 10 digits)",
+          error: "Invalid Phone Number.",
         });
       }
 
       // Update organization data
-      const organizationUpdation = await Organization.updateOne(
-        { organizationid: organizationid },
+      const dbReadyObject = await Organization.updateOne(
+        { organizationId: _orgId },
         {
           $set: {
-            name,
-            email,
-            phone_number,
-            address_line1,
-            address_line2,
-            state,
-            city,
-            zip_code,
-            notes,
+            organizationName: _orgName,
+            emailAddress: _emailAddress,
+            phoneNumber: _phoneNumber,
+            addressLine1: _addLine1,
+            addressLine2: _addLine2,
+            state: _state,
+            city: _city,
+            zipCode: _zipCode,
+            notes: _notes,
             updatedAt: new Date(),
           },
         }
@@ -253,8 +254,8 @@ organizationRouter.put(
 
       // Send success response
       return res.status(200).send({
-        message: "Organization Edit Successfully",
-        data: organizationUpdation,
+        message: "Organization Updated Successfully",
+        data: dbReadyObject,
       });
     } catch (error) {
       // Handle errors
@@ -268,7 +269,7 @@ organizationRouter.put(
  * PUT: Soft Delete Org
  */
 organizationRouter.put(
-  "/v2/organization/softdelete/:organizationid",
+  "/v2/organization/setdelete/:organizationId",
   authorization,
   async (req, res) => {
     try {
@@ -280,18 +281,18 @@ organizationRouter.put(
       }
 
       // Extract organization ID from request body
-      const organizationid = req.params.organizationid;
+      const _orgId = req.params.organizationId;
 
       // Soft delete the organization by updating the 'isDeleted' field
-      const softDeleteOrganization = await Organization.updateOne(
-        { organizationid: organizationid },
+      const dbReadyObject = await Organization.updateOne(
+        { organizationId: _orgId },
         { $set: { isDeleted: true } }
       );
 
       // Send success response
       return res
         .status(200)
-        .json({ success: true, message: "Organization Delete Successfully" });
+        .json({ success: true, message: "Organization Deleted." });
     } catch (error) {
       // Handle errors
       console.log(error);

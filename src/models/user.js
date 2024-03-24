@@ -2,43 +2,7 @@ import mongoose from "mongoose";
 import hashPassword from "../services/encryption/hashpassword.js";
 
 const UserSchema = new mongoose.Schema({
-  organizationid: {
-    type: String,
-  },
-
-  locationid: {
-    type: String,
-  },
-
-  organizationuserid: {
-    type: String,
-  },
-
-  locationuserid: {
-    type: String,
-  },
-
-  username: {
-    type: String,
-  },
-
-  name: {
-    type: String,
-  },
-
-  firstname: {
-    type: String,
-  },
-
-  lastname: {
-    type: String,
-  },
-
-  mobile_number: {
-    type: String,
-  },
-
-  email: {
+  userName: {
     type: String,
   },
 
@@ -46,61 +10,54 @@ const UserSchema = new mongoose.Schema({
     type: String,
   },
 
-  address_line1: {
-    type: String,
-  },
-
-  address_line2: {
-    type: String,
-  },
-
-  state: {
-    type: String,
-  },
-
-  city: {
-    type: String,
-  },
-
-  zip_code: {
-    type: String,
-  },
-
-  notes: {
-    type: String,
-  },
-
-  parent_organization: {
-    type: String,
-  },
-
-  parent_location: {
-    type: String,
-  },
-
   role: {
     type: String,
   },
 
-  fileurl: {
+  userOrganizationId: {
     type: String,
   },
 
-  is_verified: {
+  userLocationId: {
     type: String,
-    default: false,
   },
 
-  is_default: {
+  firstName: {
     type: String,
-    default: false,
   },
 
-  isDisable: {
+  lastName: {
     type: String,
-    default: false,
   },
 
+  phoneNumber: {
+    type: String,
+  },
+  emailAddress: {
+    type: String,
+  },
+
+  addressLine1: {
+    type: String,
+  },
+  addressLine2: {
+    type: String,
+  },
+  state: {
+    type: String,
+  },
+  city: {
+    type: String,
+  },
+  zipCode: {
+    type: String,
+  },
+  notes: {
+    type: String,
+  },
+  fileUrl: {
+    type: String,
+  },
   isDeleted: {
     type: String,
     default: false,

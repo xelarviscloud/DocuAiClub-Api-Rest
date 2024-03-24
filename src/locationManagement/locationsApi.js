@@ -38,28 +38,28 @@ locationRouter.post("/v2/location/add", authorization, async (req, res) => {
       return;
     }
 
-    // Extract data from the request body
-    const organizationid = req.body.organizationid;
-    const name = req.body.name;
-    const phone_number = req.body.phone_number;
-    const email = req.body.email;
-    const address_line1 = req.body.address_line1;
-    const address_line2 = req.body.address_line2;
-    const state = req.body.state;
-    const city = req.body.city;
-    const zip_code = req.body.zip_code;
-    const notes = req.body.notes;
+    // Extract organization data from request body
+    const _orgId = req.body.organizationId;
+    const _locName = req.body.locationName;
+    const _phoneNumber = req.body.phoneNumber;
+    const _emailAddress = req.body.emailAddress;
+    const _addLine1 = req.body.addressLine1;
+    const _addLine2 = req.body.addressLine2;
+    const _state = req.body.state;
+    const _city = req.body.city;
+    const _zipCode = req.body.zipCode;
+    const _notes = req.body.notes;
 
     // Verify the incoming data
     if (
-      !organizationid ||
-      !name ||
-      !phone_number ||
-      !email ||
-      !address_line1 ||
-      !state ||
-      !city ||
-      !zip_code
+      !_orgId ||
+      !_locName ||
+      !_phoneNumber ||
+      !_emailAddress ||
+      !_addLine1 ||
+      !_state ||
+      !_city ||
+      !_zipCode
     ) {
       return res.status(400).json({
         status: "failed",
@@ -67,36 +67,34 @@ locationRouter.post("/v2/location/add", authorization, async (req, res) => {
       });
     }
 
-    // Validate email format
-    if (!emailRegex.test(email)) {
+    // Validations
+    if (!emailRegex.test(_emailAddress)) {
       return res.status(400).json({
         status: "failed",
-        error: "Please provide a valid email address",
+        error: "Invalid Email Address.",
       });
     }
 
-    // Validate phone number format (+1 followed by 10 digits)
-    if (!phoneRegex.test(phone_number)) {
+    if (!phoneRegex.test(_phoneNumber)) {
       return res.status(400).json({
         status: "failed",
-        error:
-          "Please provide a phone number in US format (+1 followed by 10 digits)",
+        error: "Invalid Phone Number.",
       });
     }
 
     // Save data in the database Location collection
     const locationData = new Location({
-      locationid: uuid4(), // Generating a unique location ID
-      organizationid,
-      name,
-      phone_number,
-      email,
-      address_line1,
-      address_line2,
-      state,
-      city,
-      zip_code,
-      notes,
+      locationId: uuid4(),
+      locationOrgId: _orgId,
+      locationName: _locName,
+      phoneNumber: _phoneNumber,
+      emailAddress: _emailAddress,
+      addressLine1: _addLine1,
+      addressLine2: _addLine2,
+      state: _state,
+      city: _city,
+      zipCode: _zipCode,
+      notes: _notes,
     });
 
     await locationData.save(); // Saving location data
@@ -178,13 +176,13 @@ locationRouter.get("/v2/location/get", async (req, res) => {
 /**
  * GET: Single Location By Id
  */
-locationRouter.get("/v2/location/get/:locationid", async (req, res) => {
+locationRouter.get("/v2/location/get/:locationId", async (req, res) => {
   try {
-    const locationid = req.params.locationid;
+    const _locId = req.params.locationId;
 
     // Query the database for location data based on location ID, pagination, and sorting
     const locationData = await Location.find({
-      locationid,
+      locationId: _locId,
       isDeleted: { $ne: true },
     });
 
@@ -294,62 +292,56 @@ locationRouter.get(
 /**
  * PUT: Update Lcoation Info
  */
-locationRouter.put("/v2/lcoation/edit/:locationid", async (req, res) => {
+locationRouter.put("/v2/location/edit/:locationId", async (req, res) => {
   try {
-    // Extract lcoation ID from request parameters
-    const locationid = req.params.locationid;
+    const _locId = req.params.locationId;
 
-    // Extract lcoation data from request body
-    const name = req.body.name;
-    const email = req.body.email;
-    const phone_number = req.body.phone_number;
-    const address_line1 = req.body.address_line1;
-    const address_line2 = req.body.address_line2;
-    const state = req.body.state;
-    const city = req.body.city;
-    const zip_code = req.body.zip_code;
-    const notes = req.body.notes;
-
-    // Find the location data by its ID
-    const lcoationData = await Location.findOne({
-      locationid: locationid,
-    });
+    const _phoneNumber = req.body.phoneNumber;
+    const _emailAddress = req.body.emailAddress;
+    const _addLine1 = req.body.addressLine1;
+    const _addLine2 = req.body.addressLine2;
+    const _state = req.body.state;
+    const _city = req.body.city;
+    const _zipCode = req.body.zipCode;
+    const _notes = req.body.notes;
 
     // Check if location exists
-    if (!lcoationData) {
+    if (
+      !(await Location.findOne({
+        locationId: _locId,
+      }))
+    ) {
       return res.status(404).send({ error: "Location is not available" });
     }
 
     // Validate email format
-    if (email && !emailRegex.test(email)) {
+    if (!emailRegex.test(_emailAddress)) {
       return res.status(400).json({
         status: "failed",
-        error: "Please provide a valid email address",
+        error: "Invalid Email Address.",
       });
     }
 
-    // Validate phone number format
-    if (phone_number && !phoneRegex.test(phone_number)) {
-      return res.status(401).send({
+    if (!phoneRegex.test(_phoneNumber)) {
+      return res.status(400).json({
         status: "failed",
-        error: "Phone number must be in US format (+1 followed by 10 digits)",
+        error: "Invalid Phone Number.",
       });
     }
 
     // Update location data
-    const locationUpdation = await Location.updateOne(
-      { locationid: locationid },
+    const dbReadyObject = await Location.updateOne(
+      { locationId: _locId },
       {
         $set: {
-          name,
-          email,
-          phone_number,
-          address_line1,
-          address_line2,
-          state,
-          city,
-          zip_code,
-          notes,
+          emailAddress: _emailAddress,
+          phoneNumber: _phoneNumber,
+          addressLine1: _addLine1,
+          addressLine2: _addLine2,
+          state: _state,
+          city: _city,
+          zipCode: _zipCode,
+          notes: _notes,
           updatedAt: new Date(),
         },
       }
@@ -357,8 +349,8 @@ locationRouter.put("/v2/lcoation/edit/:locationid", async (req, res) => {
 
     // Send success response
     return res.status(200).send({
-      message: "Location Edit Successfully",
-      data: locationUpdation,
+      message: "Location Updated Successfully",
+      data: dbReadyObject,
     });
   } catch (error) {
     // Handle errors
@@ -371,7 +363,7 @@ locationRouter.put("/v2/lcoation/edit/:locationid", async (req, res) => {
  * PUT: Soft Delete Location
  */
 locationRouter.put(
-  "/v2/location/softdelete/:locationid",
+  "/v2/location/setdelete/:locationId",
   authorization,
   async (req, res) => {
     try {

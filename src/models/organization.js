@@ -1,68 +1,66 @@
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 
 const organizationSchema = new mongoose.Schema({
+  organizationId: {
+    type: String,
+  },
 
-    organizationid: {
-        type: String
-    },
+  organizationName: {
+    type: String,
+  },
 
-    name: {
-        type: String
-    },
+  phoneNumber: {
+    type: String,
+  },
 
-    phone_number: {
-        type: String
-    },
+  emailAddress: {
+    type: String,
+  },
 
-    email: {
-        type: String
-    },
+  addressLine1: {
+    type: String,
+  },
 
-    address_line1: {
-        type: String
-    },
+  addressLine2: {
+    type: String,
+  },
 
-    address_line2: {
-        type: String
-    },
+  state: {
+    type: String,
+  },
 
-    state: {
-        type: String
-    },
+  city: {
+    type: String,
+  },
 
-    city: {
-        type: String
-    },
+  zipCode: {
+    type: String,
+  },
 
-    zip_code: {
-        type: String
-    },
+  notes: {
+    type: String,
+  },
 
-    notes: {
-        type: String
-    },
+  isDisable: {
+    type: String,
+    default: false,
+  },
 
-    isDisable: {
-        type: String,
-        default: false
-    },
+  isDeleted: {
+    type: String,
+    default: false,
+  },
 
-    isDeleted: {
-        type: String,
-        default: false
-    },
+  createdAt: {
+    type: Number,
+    default: new Date(),
+  },
 
-    createdAt: {
-        type: Number,
-        default: new Date()
-    },
+  updatedAt: {
+    type: Number,
+  },
+});
 
-    updatedAt: {
-        type: Number
-    }
+const Organization = new mongoose.model("Organization", organizationSchema);
 
-})
-
-const Organization = new mongoose.model("organization", organizationSchema)
-
-export default Organization 
+export default Organization;
