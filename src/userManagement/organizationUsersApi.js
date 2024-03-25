@@ -87,7 +87,7 @@ organizationUsersRouter.post(
   async (req, res) => {
     try {
       if (req.role !== "superadmin") {
-        res.status(403).send("You don't have access");
+        res.status(403).send("Authentication failed.");
         return;
       }
 

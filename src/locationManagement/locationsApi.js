@@ -35,7 +35,7 @@ locationRouter.post("/v2/location/add", authorization, async (req, res) => {
   try {
     // Check if the user has superadmin role
     if (req.role !== "superadmin" || !req.role == "organizationadmin") {
-      res.status(403).send("You don't have access");
+      res.status(403).send("Invalid Authorization.");
       return;
     }
 

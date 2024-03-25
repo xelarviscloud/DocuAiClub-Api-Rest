@@ -5,6 +5,7 @@ import uuid4 from "uuid4";
 
 import { shortCircuitEvaluation } from "../utility/extensions.js";
 import UserCollection from "../models/user.js";
+import Location from "../models/location.js";
 import { emailRegex } from "../utility/regex.js";
 import authorization from "../services/authorizationMiddleware/authorization.js";
 import { doesUserAlreadyExists } from "../utility/extensions.js";
@@ -21,7 +22,7 @@ locationUsersRouter.post(
   async (req, res) => {
     try {
       if (req.role !== "superadmin") {
-        res.status(403).send("You don't have access");
+        res.status(403).send("Invalid Authorization.");
         return;
       }
 
@@ -30,7 +31,7 @@ locationUsersRouter.post(
       const _confirmPassword = req.body.confirmPassword;
 
       const _role = "locationuser";
-      const _userOrgId = req.body.organizationId;
+      let _userOrgId = req.body.organizationId;
       const _userLocId = req.body.locationId;
 
       const _firstName = req.body.firstName;
@@ -97,6 +98,15 @@ locationUsersRouter.post(
 
       let fileUrl = "";
       let is_default = true;
+      // find OrgId if not found.
+      if (_userOrgId) {
+        const _orgs = await Location.find({
+          locationId: _userLocId,
+        });
+        _userOrgId = _orgs[0]?.orgUserData;
+      }
+
+      console.log("_userOrgId", _userOrgId);
       // Save data in the database collection
       const orgUserData = new UserCollection({
         userName: _userName,
@@ -140,7 +150,7 @@ locationUsersRouter.get(
       const role = req.role;
 
       if (!(role == "superadmin" || role == "organizationadmin")) {
-        res.status(403).send("Authentication failed.");
+        res.status(403).send("Invalid Authorization.");
         return;
       }
 
