@@ -14,7 +14,7 @@ import authorization from "../services/authorizationMiddleware/authorization.js"
 import { emailRegex, phoneRegex } from "../utility/regex.js";
 import { calculatePagination } from "../services/pagination/paginationFunction.js";
 import { SearchFilter } from "../services/searching/searchingFilters.js";
-import Organization from "../models/organization.js";
+import OrganizationCollection from "../models/organization.js";
 import { shortCircuitEvaluation } from "../utility/extensions.js";
 
 const locationRouter = express.Router();
@@ -181,7 +181,9 @@ locationRouter.get("/v2/location/get/:locationId", async (req, res) => {
 
     // Function to retrieve organization data based on organization ID
     const organizationDetails = async (organizationid) => {
-      return await Organization.findOne({ organizationid }).sort({ _id: -1 });
+      return await OrganizationCollection.findOne({ organizationid }).sort({
+        _id: -1,
+      });
     };
 
     const promises = locationData.map(async (locationDetail) => {
@@ -239,7 +241,9 @@ locationRouter.get(
 
       // Function to retrieve organization data based on organization ID
       const organizationDetails = async (organizationid) => {
-        return await Organization.findOne({ organizationid }).sort({ _id: -1 });
+        return await OrganizationCollection.findOne({ organizationid }).sort({
+          _id: -1,
+        });
       };
 
       const promises = locationData.map(async (locationDetail) => {

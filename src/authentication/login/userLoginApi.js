@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
 import UserCollection from "../../models/user.js";
+import OrganizationCollection from "./../../models/organization.js";
 
 const loginRouter = express.Router();
 
@@ -43,13 +44,24 @@ loginRouter.post("/v2/user/login", async (req, res) => {
     // Create a JWT token
 
     const role = dbUser.role;
+    const organizationId = dbUser.userOrganizationId;
 
-    if (role == "superadmin") {
+    const orgs = await OrganizationCollection.find({
+      organizationId: "d25293e9-40a0-4619-a42b-235cf5415a0b",
+    });
+
+    const userOrganization = orgs[0];
+    console.log("test", dbUser, userOrganization);
+
+    if (role == "superadmin" || role == "organizationuser") {
       const email = dbUser.email;
       const username = dbUser.username;
       const jwtKey = "staysolve123";
       // Generate JWT
-      const accessToken = jwt.sign({ email, username, role }, jwtKey);
+      const accessToken = jwt.sign(
+        { email, username, role, organizationId, userOrganization },
+        jwtKey
+      );
 
       // Store the JWT token in a cookie named "jwtToken"
       res.cookie("jwtToken", accessToken, {

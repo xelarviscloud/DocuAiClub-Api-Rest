@@ -8,7 +8,7 @@
  * DELETE: Id << dont implement right now
  */
 import express from "express";
-import Organization from "../models/organization.js"; // Importing the Organization model
+import OrganizationCollection from "../models/organization.js";
 import uuid4 from "uuid4";
 import authorization from "../services/authorizationMiddleware/authorization.js";
 import { calculatePagination } from "../services/pagination/paginationFunction.js";
@@ -40,7 +40,8 @@ organizationRouter.post(
 );
 
 /**
- * POST: Add New Org
+ * GOOD
+ * POST: Organization
  */
 organizationRouter.post(
   "/v2/organization/add",
@@ -90,7 +91,7 @@ organizationRouter.post(
       }
 
       // Save data in the database Organization collection
-      const dbReadyObject = new Organization({
+      const dbReadyObject = new OrganizationCollection({
         organizationId: uuid4(),
         organizationName: _orgName,
         phoneNumber: _phoneNumber,
@@ -122,25 +123,25 @@ organizationRouter.post(
 );
 
 /**
- * GET All Orgs
+ * GOOD
+ * GET: All Orgs
  */
-organizationRouter.get("/v2/organization/get", async (req, res) => {
+organizationRouter.get("/v2/organizations/get", async (req, res) => {
   try {
     // Calculate page and pageSize using the function
     const { page, pageSize, skip } = calculatePagination(req);
     const search = req.query.search || "";
     const searchFilter = SearchFilter(search);
 
-    /**
-     * GET Orgs by Search Criteria
-     */
-    const organizationsData = await Organization.find(searchFilter)
+    const organizationsData = await OrganizationCollection.find(searchFilter)
       .sort({ _id: -1 })
       .skip(skip)
       .limit(pageSize);
 
     // Count total documents matching the search filter for pagination
-    const totalDocuments = await Organization.countDocuments(searchFilter);
+    const totalDocuments = await OrganizationCollection.countDocuments(
+      searchFilter
+    );
 
     // Send response with organizations data and pagination information
     return res.status(200).send({
@@ -160,6 +161,7 @@ organizationRouter.get("/v2/organization/get", async (req, res) => {
 });
 
 /**
+ * GOOD
  * GET: Single Org By Id
  */
 organizationRouter.get(
@@ -169,7 +171,7 @@ organizationRouter.get(
       const _orgId = req.params.organizationId;
 
       // Query the database for organization data based on organization ID, pagination, and sorting
-      const dbReadyObject = await Organization.findOne({
+      const dbReadyObject = await OrganizationCollection.findOne({
         organizationId: _orgId,
       });
 
@@ -211,7 +213,7 @@ organizationRouter.put(
 
       // Check if organization exists
       if (
-        !(await Organization.findOne({
+        !(await OrganizationCollection.findOne({
           organizationId: _orgId,
         }))
       ) {
@@ -234,7 +236,7 @@ organizationRouter.put(
       }
 
       // Update organization data
-      const dbReadyObject = await Organization.updateOne(
+      const dbReadyObject = await OrganizationCollection.updateOne(
         { organizationId: _orgId },
         {
           $set: {
@@ -284,7 +286,7 @@ organizationRouter.put(
       const _orgId = req.params.organizationId;
 
       // Soft delete the organization by updating the 'isDeleted' field
-      const dbReadyObject = await Organization.updateOne(
+      const dbReadyObject = await OrganizationCollection.updateOne(
         { organizationId: _orgId },
         { $set: { isDeleted: true } }
       );
