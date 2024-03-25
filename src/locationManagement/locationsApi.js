@@ -15,6 +15,7 @@ import { emailRegex, phoneRegex } from "../utility/regex.js";
 import { calculatePagination } from "../services/pagination/paginationFunction.js";
 import { SearchFilter } from "../services/searching/searchingFilters.js";
 import Organization from "../models/organization.js";
+import { shortCircuitEvaluation } from "../utility/extensions.js";
 
 const locationRouter = express.Router();
 
@@ -113,56 +114,48 @@ locationRouter.post("/v2/location/add", authorization, async (req, res) => {
 });
 
 /**
- * GET All Location
+ * GET All Locations
  */
-locationRouter.get("/v2/location/get", async (req, res) => {
+locationRouter.get("/v2/locations/get", async (req, res) => {
   try {
-    // Calculate page and pageSize using the function
+    const _orgId = req.query?.organizationId || false;
     const { page, pageSize, skip } = calculatePagination(req);
     const search = req.query.search || "";
     const searchFilter = SearchFilter(search);
 
-    /**
-     * GET Location by Search Criteria
-     */
-    const locationData = await Location.find({
-      ...searchFilter,
-      isDeleted: { $ne: true },
-    })
-      .sort({ _id: -1 })
-      .skip(skip)
-      .limit(pageSize);
+    const orgIdQuery = shortCircuitEvaluation(_orgId);
 
-    // Count total documents matching the search filter for pagination
-    const totalDocuments = await Location.countDocuments(searchFilter);
+    // const locations = await Location.find({
+    //   ...searchFilter,
+    //   isDeleted: { $ne: true },
+    // })
+    //   .sort({ _id: -1 })
+    //   .skip(skip)
+    //   .limit(pageSize);
 
-    // Function to retrieve organization data based on organization ID
-    const organizationDetails = async (organizationid) => {
-      return await Organization.findOne({ organizationid }).sort({ _id: -1 });
-    };
+    const locations = await Location.aggregate([
+      {
+        $match: {
+          locationOrgId: orgIdQuery || { $ne: null },
+        },
+      },
+      {
+        $lookup: {
+          from: "organizations",
+          localField: "locationOrgId",
+          foreignField: "organizationId",
+          as: "vw_loc_orgs",
+        },
+      },
+    ]);
 
-    const promises = locationData.map(async (locationDetail) => {
-      const organizationData = await organizationDetails(
-        locationDetail.organizationid
-      );
-      const parentOrganization = organizationData
-        ? organizationData.name
-        : null;
-      return {
-        data: locationDetail,
-        parentOrganization,
-      };
-    });
-
-    const locations = await Promise.all(promises);
-
-    // Send response with locations data and pagination information
+    //console.log("loc", _orgId);
     return res.status(200).send({
       success: true,
       data: locations,
       currentPage: page,
       pageSize,
-      totalPages: Math.ceil(totalDocuments / pageSize),
+      totalPages: Math.ceil((locations?.length ?? 0) / pageSize),
     });
   } catch (error) {
     // Handle errors

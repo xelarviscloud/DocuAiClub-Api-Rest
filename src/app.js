@@ -12,6 +12,7 @@ import databaseRouter from "./healthcheck/mongodb-healthcheck.js";
 import organizationRouter from "./organizationManagement/organizationsApi.js";
 import locationRouter from "./locationManagement/locationsApi.js";
 import organizationUsersRouter from "./userManagement/organizationUsersApi.js";
+import locationUsersRouter from "./userManagement/locationUsersApi.js";
 // configuration of .env file
 dotenv.config();
 
@@ -80,7 +81,7 @@ app.use(databaseRouter);
 app.use(organizationRouter);
 app.use(locationRouter);
 app.use(organizationUsersRouter);
-
+app.use(locationUsersRouter);
 const port = process.env.PORT || 4000;
 // health check
 app.get("/", async (req, res) => {
