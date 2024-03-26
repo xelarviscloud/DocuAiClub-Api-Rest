@@ -1,12 +1,3 @@
-/**
- * CRUD LOCATION OPERATION
- *
- * GET:ALL
- * GET:detail:id
- * POST: body
- * PUT: body << soft delete is via PUT
- * DELETE: Id << dont implement right now
- */
 import express from "express";
 import Location from "../models/location.js"; //Importing the location model
 import uuid4 from "uuid4";

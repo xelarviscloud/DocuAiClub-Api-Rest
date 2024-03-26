@@ -21,7 +21,7 @@ locationUsersRouter.post(
   authorization,
   async (req, res) => {
     try {
-      if (req.role !== "superadmin") {
+      if (req.role !== "superadmin" && req.role !== "organizationuser") {
         res.status(403).send("Invalid Authorization.");
         return;
       }
@@ -89,7 +89,7 @@ locationUsersRouter.post(
       }
 
       if (
-        await doesUserAlreadyExists([UserCollection], "username", _userName)
+        await doesUserAlreadyExists([UserCollection], "userName", _userName)
       ) {
         return res.status(400).send({
           error: "Username is not available. Please choose different Username.",
@@ -149,7 +149,7 @@ locationUsersRouter.get(
       // Check IF Role in (SUPERADMIN, ORGADMIN)
       const role = req.role;
 
-      if (!(role == "superadmin" || role == "organizationadmin")) {
+      if (!(role == "superadmin" || role == "organizationuser")) {
         res.status(403).send("Invalid Authorization.");
         return;
       }
