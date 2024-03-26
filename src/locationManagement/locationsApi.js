@@ -20,6 +20,171 @@ locationRouter.get("/v2/location", async (req, res) => {
 });
 
 /**
+ * GET All Locations
+ */
+locationRouter.get("/v2/locations/get", async (req, res) => {
+  try {
+    const _orgId = req.query?.organizationId || false;
+    const { page, pageSize, skip } = calculatePagination(req);
+    const search = req.query.search || "";
+    const searchFilter = SearchFilter(search);
+
+    const orgIdQuery = shortCircuitEvaluation(_orgId);
+
+    // const locations = await Location.find({
+    //   ...searchFilter,
+    //   isDeleted: { $ne: true },
+    // })
+    //   .sort({ _id: -1 })
+    //   .skip(skip)
+    //   .limit(pageSize);
+
+    const locations = await Location.aggregate([
+      {
+        $match: {
+          locationOrgId: orgIdQuery || { $ne: null },
+        },
+      },
+      {
+        $lookup: {
+          from: "organizations",
+          localField: "locationOrgId",
+          foreignField: "organizationId",
+          as: "vw_loc_orgs",
+        },
+      },
+    ]);
+
+    //console.log("loc", _orgId);
+    return res.status(200).send({
+      success: true,
+      data: locations,
+      currentPage: page,
+      pageSize,
+      totalPages: Math.ceil((locations?.length ?? 0) / pageSize),
+    });
+  } catch (error) {
+    // Handle errors
+    console.log(error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+});
+
+/**
+ * GET: Single Location By Id
+ */
+locationRouter.get("/v2/location/get/:locationId", async (req, res) => {
+  try {
+    const _locId = req.params.locationId;
+
+    // const locationData = await Location.aggregate({
+    //   locationId: _locId,
+    // });
+
+    const locationData = await Location.aggregate([
+      {
+        $match: {
+          locationId: _locId,
+        },
+      },
+      {
+        $lookup: {
+          from: "organizations",
+          localField: "locationOrgId",
+          foreignField: "organizationId",
+          as: "vw_loc_orgs",
+        },
+      },
+    ]);
+
+    console.log("loc detail", _locId, locationData);
+    return res.status(200).send({
+      success: true,
+      data: locationData[0],
+    });
+  } catch (error) {
+    // Handle errors
+    console.log(error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+});
+
+/**
+ * GET: Organization Wise Location
+ */
+locationRouter.get(
+  "/v2/organization/location/get/:organizationid",
+  async (req, res) => {
+    try {
+      // Calculate page and pageSize using the function
+      const { page, pageSize, skip } = calculatePagination(req);
+      const search = req.query.search || "";
+      const searchFilter = SearchFilter(search);
+
+      const organizationid = req.params.organizationid;
+
+      // Query the database for location data based on organization ID, pagination, and sorting
+      const locationData = await Location.find({
+        organizationid,
+        ...searchFilter,
+        isDeleted: { $ne: true },
+      })
+        .sort({ _id: -1 })
+        .skip(skip)
+        .limit(pageSize);
+
+      // Function to retrieve organization data based on organization ID
+      const organizationDetails = async (organizationid) => {
+        return await OrganizationCollection.findOne({ organizationid }).sort({
+          _id: -1,
+        });
+      };
+
+      const promises = locationData.map(async (locationDetail) => {
+        const organizationData = await organizationDetails(
+          locationDetail.organizationid
+        );
+        const parentOrganization = organizationData
+          ? organizationData.name
+          : null;
+        return {
+          data: locationDetail,
+          parentOrganization,
+        };
+      });
+
+      const locations = await Promise.all(promises);
+
+      // Retrieve total document count for pagination
+      const totalDocuments = await Location.countDocuments({
+        organizationid,
+        ...searchFilter,
+        isDeleted: { $ne: true }, // Exclude documents where isDeleted is true
+      });
+
+      // Send response with location data and pagination information
+      return res.status(200).send({
+        success: true,
+        data: locations,
+        currentPage: page,
+        pageSize,
+        totalPages: Math.ceil(totalDocuments / pageSize),
+      });
+    } catch (error) {
+      // Handle errors
+      console.log(error);
+      return res
+        .status(500)
+        .json({ success: false, message: "Internal server error" });
+    }
+  }
+);
+
+/**
  * POST: Add New Location
  */
 locationRouter.post("/v2/location/add", authorization, async (req, res) => {
@@ -105,184 +270,12 @@ locationRouter.post("/v2/location/add", authorization, async (req, res) => {
 });
 
 /**
- * GET All Locations
- */
-locationRouter.get("/v2/locations/get", async (req, res) => {
-  try {
-    const _orgId = req.query?.organizationId || false;
-    const { page, pageSize, skip } = calculatePagination(req);
-    const search = req.query.search || "";
-    const searchFilter = SearchFilter(search);
-
-    const orgIdQuery = shortCircuitEvaluation(_orgId);
-
-    // const locations = await Location.find({
-    //   ...searchFilter,
-    //   isDeleted: { $ne: true },
-    // })
-    //   .sort({ _id: -1 })
-    //   .skip(skip)
-    //   .limit(pageSize);
-
-    const locations = await Location.aggregate([
-      {
-        $match: {
-          locationOrgId: orgIdQuery || { $ne: null },
-        },
-      },
-      {
-        $lookup: {
-          from: "organizations",
-          localField: "locationOrgId",
-          foreignField: "organizationId",
-          as: "vw_loc_orgs",
-        },
-      },
-    ]);
-
-    //console.log("loc", _orgId);
-    return res.status(200).send({
-      success: true,
-      data: locations,
-      currentPage: page,
-      pageSize,
-      totalPages: Math.ceil((locations?.length ?? 0) / pageSize),
-    });
-  } catch (error) {
-    // Handle errors
-    console.log(error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
-  }
-});
-
-/**
- * GET: Single Location By Id
- */
-locationRouter.get("/v2/location/get/:locationId", async (req, res) => {
-  try {
-    const _locId = req.params.locationId;
-
-    // Query the database for location data based on location ID, pagination, and sorting
-    const locationData = await Location.find({
-      locationId: _locId,
-      isDeleted: { $ne: true },
-    });
-
-    // Function to retrieve organization data based on organization ID
-    const organizationDetails = async (organizationid) => {
-      return await OrganizationCollection.findOne({ organizationid }).sort({
-        _id: -1,
-      });
-    };
-
-    const promises = locationData.map(async (locationDetail) => {
-      const organizationData = await organizationDetails(
-        locationDetail.organizationid
-      );
-      const parentOrganization = organizationData
-        ? organizationData.name
-        : null;
-      return {
-        data: locationDetail,
-        parentOrganization,
-      };
-    });
-
-    const locations = await Promise.all(promises);
-
-    // Send response with location data and pagination information
-    return res.status(200).send({
-      success: true,
-      data: locations,
-    });
-  } catch (error) {
-    // Handle errors
-    console.log(error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
-  }
-});
-
-/**
- * GET: Organization Wise Location
- */
-locationRouter.get(
-  "/v2/organization/location/get/:organizationid",
-  async (req, res) => {
-    try {
-      // Calculate page and pageSize using the function
-      const { page, pageSize, skip } = calculatePagination(req);
-      const search = req.query.search || "";
-      const searchFilter = SearchFilter(search);
-
-      const organizationid = req.params.organizationid;
-
-      // Query the database for location data based on organization ID, pagination, and sorting
-      const locationData = await Location.find({
-        organizationid,
-        ...searchFilter,
-        isDeleted: { $ne: true },
-      })
-        .sort({ _id: -1 })
-        .skip(skip)
-        .limit(pageSize);
-
-      // Function to retrieve organization data based on organization ID
-      const organizationDetails = async (organizationid) => {
-        return await OrganizationCollection.findOne({ organizationid }).sort({
-          _id: -1,
-        });
-      };
-
-      const promises = locationData.map(async (locationDetail) => {
-        const organizationData = await organizationDetails(
-          locationDetail.organizationid
-        );
-        const parentOrganization = organizationData
-          ? organizationData.name
-          : null;
-        return {
-          data: locationDetail,
-          parentOrganization,
-        };
-      });
-
-      const locations = await Promise.all(promises);
-
-      // Retrieve total document count for pagination
-      const totalDocuments = await Location.countDocuments({
-        organizationid,
-        ...searchFilter,
-        isDeleted: { $ne: true }, // Exclude documents where isDeleted is true
-      });
-
-      // Send response with location data and pagination information
-      return res.status(200).send({
-        success: true,
-        data: locations,
-        currentPage: page,
-        pageSize,
-        totalPages: Math.ceil(totalDocuments / pageSize),
-      });
-    } catch (error) {
-      // Handle errors
-      console.log(error);
-      return res
-        .status(500)
-        .json({ success: false, message: "Internal server error" });
-    }
-  }
-);
-
-/**
- * PUT: Update Lcoation Info
+ * PUT: Update Location Info
  */
 locationRouter.put("/v2/location/edit/:locationId", async (req, res) => {
   try {
     const _locId = req.params.locationId;
+    const _locName = req.body.locationName;
 
     const _phoneNumber = req.body.phoneNumber;
     const _emailAddress = req.body.emailAddress;
@@ -292,6 +285,23 @@ locationRouter.put("/v2/location/edit/:locationId", async (req, res) => {
     const _city = req.body.city;
     const _zipCode = req.body.zipCode;
     const _notes = req.body.notes;
+
+    // Verify the incoming data
+    if (
+      !_locId ||
+      !_locName ||
+      !_phoneNumber ||
+      !_emailAddress ||
+      !_addLine1 ||
+      !_state ||
+      !_city ||
+      !_zipCode
+    ) {
+      return res.status(400).json({
+        status: "failed",
+        error: "Please provide all required fields",
+      });
+    }
 
     // Check if location exists
     if (
@@ -322,6 +332,7 @@ locationRouter.put("/v2/location/edit/:locationId", async (req, res) => {
       { locationId: _locId },
       {
         $set: {
+          locationName: _locName,
           emailAddress: _emailAddress,
           phoneNumber: _phoneNumber,
           addressLine1: _addLine1,

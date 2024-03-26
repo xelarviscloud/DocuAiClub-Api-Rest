@@ -47,19 +47,24 @@ loginRouter.post("/v2/user/login", async (req, res) => {
     const organizationId = dbUser.userOrganizationId;
 
     const orgs = await OrganizationCollection.find({
-      organizationId: "d25293e9-40a0-4619-a42b-235cf5415a0b",
+      organizationId: organizationId,
     });
 
     const userOrganization = orgs[0];
     console.log("test", dbUser, userOrganization);
 
-    if (role == "superadmin" || role == "organizationuser") {
+    if (
+      role == "superadmin" ||
+      role == "organizationuser" ||
+      role == "locationuser"
+    ) {
       const email = dbUser.email;
       const username = dbUser.username;
+      const locationId = dbUser.userLocationId;
       const jwtKey = "staysolve123";
       // Generate JWT
       const accessToken = jwt.sign(
-        { email, username, role, organizationId, userOrganization },
+        { email, username, role, organizationId, locationId, userOrganization },
         jwtKey
       );
 
