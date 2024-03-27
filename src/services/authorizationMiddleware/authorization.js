@@ -1,7 +1,7 @@
-import express from "express";
-import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
+import express from "express";
+import jwt from "jsonwebtoken";
 
 dotenv.config();
 

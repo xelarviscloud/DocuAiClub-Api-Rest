@@ -1,18 +1,18 @@
-import express from "express";
+import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
+import cors from "cors";
 import dotenv from "dotenv";
 import "dotenv/config";
-import cors from "cors";
-import bodyParser from "body-parser";
-import multer from "multer";
-import cookieParser from "cookie-parser";
+import express from "express";
 import jwt from "jsonwebtoken";
+import multer from "multer";
 
 import loginRouter from "./authentication/login/userLoginApi.js";
 import databaseRouter from "./healthcheck/mongodb-healthcheck.js";
-import organizationRouter from "./organizationManagement/organizationsApi.js";
 import locationRouter from "./locationManagement/locationsApi.js";
-import organizationUsersRouter from "./userManagement/organizationUsersApi.js";
+import organizationRouter from "./organizationManagement/organizationsApi.js";
 import locationUsersRouter from "./userManagement/locationUsersApi.js";
+import organizationUsersRouter from "./userManagement/organizationUsersApi.js";
 // configuration of .env file
 dotenv.config();
 

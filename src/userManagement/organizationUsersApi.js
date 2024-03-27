@@ -31,7 +31,7 @@ organizationUsersRouter.get(
       // Check IF Role in (SUPERADMIN, ORGADMIN)
       const role = req.role;
 
-      if (!(role == "superadmin" || role == "organizationadmin")) {
+      if (!(role == "superadmin" || role == "organizationuser")) {
         res.status(403).send("Authentication failed.");
         return;
       }

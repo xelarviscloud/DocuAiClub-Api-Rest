@@ -1,7 +1,7 @@
-import express from "express";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import "dotenv/config";
+import express from "express";
+import jwt from "jsonwebtoken";
 import UserCollection from "../../models/user.js";
 import OrganizationCollection from "./../../models/organization.js";
 

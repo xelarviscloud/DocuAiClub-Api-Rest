@@ -1,13 +1,12 @@
-import express from "express";
 import dotenv from "dotenv";
+import express from "express";
 
-import { truthyCheck } from "../utility/extensions.js";
-import UserCollection from "../models/user.js";
 import Location from "../models/location.js";
-import { emailRegex } from "../utility/regex.js";
+import UserCollection from "../models/user.js";
 import authorization from "../services/authorizationMiddleware/authorization.js";
-import { doesUserAlreadyExists } from "../utility/extensions.js";
 import hashPassword from "../services/encryption/hashpassword.js";
+import { doesUserAlreadyExists, truthyCheck } from "../utility/extensions.js";
+import { emailRegex } from "../utility/regex.js";
 
 dotenv.config();
 

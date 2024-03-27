@@ -8,12 +8,12 @@
  * DELETE: Id << dont implement right now
  */
 import express from "express";
-import OrganizationCollection from "../models/organization.js";
 import uuid4 from "uuid4";
+import OrganizationCollection from "../models/organization.js";
 import authorization from "../services/authorizationMiddleware/authorization.js";
 import { calculatePagination } from "../services/pagination/paginationFunction.js";
-import { emailRegex, phoneRegex } from "../utility/regex.js";
 import { SearchFilter } from "../services/searching/searchingFilters.js";
+import { emailRegex, phoneRegex } from "../utility/regex.js";
 
 const organizationRouter = express.Router();
 
