@@ -1,10 +1,10 @@
 import dotenv from "dotenv";
 import express from "express";
 
-import Location from "../models/location.js";
-import UserCollection from "../models/user.js";
+import Location from "../database/models/location.js";
+import UserCollection from "../database/models/user.js";
 import authorization from "../services/authorizationMiddleware/authorization.js";
-import hashPassword from "../services/encryption/hashpassword.js";
+import hashPassword from "../services/encryption/hashPassword.js";
 import { doesUserAlreadyExists, truthyCheck } from "../utility/extensions.js";
 import { emailRegex } from "../utility/regex.js";
 

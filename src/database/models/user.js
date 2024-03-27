@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import hashPassword from "../services/encryption/hashpassword.js";
+import hashPassword from "../../services/encryption/hashPassword.js";
 
 const UserSchema = new mongoose.Schema({
   userName: {

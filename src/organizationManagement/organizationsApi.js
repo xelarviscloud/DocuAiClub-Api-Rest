@@ -9,7 +9,7 @@
  */
 import express from "express";
 import uuid4 from "uuid4";
-import OrganizationCollection from "../models/organization.js";
+import OrganizationCollection from "../database/models/organization.js";
 import authorization from "../services/authorizationMiddleware/authorization.js";
 import { calculatePagination } from "../services/pagination/paginationFunction.js";
 import { SearchFilter } from "../services/searching/searchingFilters.js";

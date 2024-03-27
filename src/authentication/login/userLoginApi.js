@@ -2,8 +2,8 @@ import bcrypt from "bcrypt";
 import "dotenv/config";
 import express from "express";
 import jwt from "jsonwebtoken";
-import UserCollection from "../../models/user.js";
-import OrganizationCollection from "./../../models/organization.js";
+import UserCollection from "../../database/models/user.js";
+import OrganizationCollection from "./../../database/models/organization.js";
 
 const loginRouter = express.Router();
 

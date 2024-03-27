@@ -1,12 +1,12 @@
 import express from "express";
-import Location from "../models/location.js"; //Importing the location model
 import uuid4 from "uuid4";
+import Location from "../database/models/location.js"; //Importing the location model
+import OrganizationCollection from "../database/models/organization.js";
 import authorization from "../services/authorizationMiddleware/authorization.js";
-import { emailRegex, phoneRegex } from "../utility/regex.js";
 import { calculatePagination } from "../services/pagination/paginationFunction.js";
 import { SearchFilter } from "../services/searching/searchingFilters.js";
-import OrganizationCollection from "../models/organization.js";
 import { truthyCheck } from "../utility/extensions.js";
+import { emailRegex, phoneRegex } from "../utility/regex.js";
 
 const locationRouter = express.Router();
 
@@ -30,14 +30,6 @@ locationRouter.get("/v2/locations/get", async (req, res) => {
     const searchFilter = SearchFilter(search);
 
     const orgIdQuery = truthyCheck(_orgId);
-
-    // const locations = await Location.find({
-    //   ...searchFilter,
-    //   isDeleted: { $ne: true },
-    // })
-    //   .sort({ _id: -1 })
-    //   .skip(skip)
-    //   .limit(pageSize);
 
     const locations = await Location.aggregate([
       {

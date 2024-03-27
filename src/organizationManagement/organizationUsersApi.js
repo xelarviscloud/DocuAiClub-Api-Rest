@@ -2,16 +2,14 @@
  * Org Users Api
  * GET | POST | PUT | DEL
  */
-import express from "express";
 import dotenv from "dotenv";
+import express from "express";
 
-import uuid4 from "uuid4";
-
-import UserCollection from "../models/user.js";
-import { emailRegex } from "../utility/regex.js";
+import UserCollection from "../database/models/user.js";
 import authorization from "../services/authorizationMiddleware/authorization.js";
+import hashPassword from "../services/encryption/hashPassword.js";
 import { doesUserAlreadyExists, truthyCheck } from "../utility/extensions.js";
-import hashPassword from "../services/encryption/hashpassword.js";
+import { emailRegex } from "../utility/regex.js";
 
 dotenv.config();
 

@@ -11,8 +11,8 @@ import loginRouter from "./authentication/login/userLoginApi.js";
 import databaseRouter from "./healthcheck/mongodb-healthcheck.js";
 import locationRouter from "./locationManagement/locationsApi.js";
 import organizationRouter from "./organizationManagement/organizationsApi.js";
-import locationUsersRouter from "./userManagement/locationUsersApi.js";
-import organizationUsersRouter from "./userManagement/organizationUsersApi.js";
+import locationUsersRouter from "./locationManagement/locationUsersApi.js";
+import organizationUsersRouter from "./organizationManagement/organizationUsersApi.js";
 // configuration of .env file
 dotenv.config();
 
