@@ -182,7 +182,7 @@ organizationUsersRouter.put(
       );
 
       res.status(201).send({
-        message: "Organization User added Successfully",
+        message: "Organization User updated Successfully",
         data: orgUserData,
       });
     } catch (error) {
