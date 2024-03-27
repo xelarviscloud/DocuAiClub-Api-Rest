@@ -5,7 +5,7 @@ import OrganizationCollection from "../database/models/organization.js";
 import authorization from "../services/authorizationMiddleware/authorization.js";
 import { calculatePagination } from "../services/pagination/paginationFunction.js";
 import { SearchFilter } from "../services/searching/searchingFilters.js";
-import { truthyCheck } from "../utility/extensions.js";
+import { truthyCheck, sendErrorResponse } from "../utility/extensions.js";
 import { emailRegex, phoneRegex } from "../utility/regex.js";
 
 const locationRouter = express.Router();
@@ -30,7 +30,6 @@ locationRouter.get("/v2/locations/get", async (req, res) => {
     const searchFilter = SearchFilter(search);
 
     const orgIdQuery = truthyCheck(_orgId);
-
     const locations = await Location.aggregate([
       {
         $match: {
@@ -55,11 +54,7 @@ locationRouter.get("/v2/locations/get", async (req, res) => {
       totalPages: Math.ceil((locations?.length ?? 0) / pageSize),
     });
   } catch (error) {
-    // Handle errors
-    console.log(error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+    return sendErrorResponse(res, error);
   }
 });
 
@@ -95,11 +90,7 @@ locationRouter.get("/v2/location/get/:locationId", async (req, res) => {
       data: locationData[0],
     });
   } catch (error) {
-    // Handle errors
-    console.log(error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+    return sendErrorResponse(res, error);
   }
 });
 
@@ -165,11 +156,7 @@ locationRouter.get(
         totalPages: Math.ceil(totalDocuments / pageSize),
       });
     } catch (error) {
-      // Handle errors
-      console.log(error);
-      return res
-        .status(500)
-        .json({ success: false, message: "Internal server error" });
+      return sendErrorResponse(res, error);
     }
   }
 );
@@ -254,9 +241,7 @@ locationRouter.post("/v2/location/add", authorization, async (req, res) => {
       location: locationData,
     });
   } catch (error) {
-    // Handle any errors
-    console.error("Error:", error);
-    res.status(500).json({ status: "failed", error: "Internal server error" });
+    return sendErrorResponse(res, error);
   }
 });
 
@@ -343,9 +328,7 @@ locationRouter.put("/v2/location/edit/:locationId", async (req, res) => {
       data: dbReadyObject,
     });
   } catch (error) {
-    // Handle errors
-    console.log(error);
-    return res.status(400).send({ error: error.message });
+    return sendErrorResponse(res, error);
   }
 });
 
@@ -378,9 +361,7 @@ locationRouter.put(
         .status(200)
         .json({ success: true, message: "Location Delete Successfully" });
     } catch (error) {
-      // Handle errors
-      console.log(error);
-      return res.status(500).send({ error: error.message });
+      return sendErrorResponse(res, error);
     }
   }
 );

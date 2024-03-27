@@ -14,7 +14,7 @@ import authorization from "../services/authorizationMiddleware/authorization.js"
 import { calculatePagination } from "../services/pagination/paginationFunction.js";
 import { SearchFilter } from "../services/searching/searchingFilters.js";
 import { emailRegex, phoneRegex } from "../utility/regex.js";
-
+import { sendErrorResponse } from "../utility/extensions.js";
 const organizationRouter = express.Router();
 
 /**
@@ -113,11 +113,7 @@ organizationRouter.post(
         organization: dbReadyObject,
       });
     } catch (error) {
-      // Handle any errors
-      console.error("Error:", error);
-      res
-        .status(500)
-        .json({ status: "failed", error: "Internal server error" });
+      return sendErrorResponse(res, error);
     }
   }
 );
@@ -152,11 +148,7 @@ organizationRouter.get("/v2/organizations/get", async (req, res) => {
       totalPages: Math.ceil(totalDocuments / pageSize),
     });
   } catch (error) {
-    // Handle errors
-    console.log(error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+    return sendErrorResponse(res, error);
   }
 });
 
@@ -181,11 +173,7 @@ organizationRouter.get(
         data: dbReadyObject,
       });
     } catch (error) {
-      // Handle errors
-      console.log(error);
-      return res
-        .status(500)
-        .json({ success: false, message: "Internal server error" });
+      return sendErrorResponse(res, error);
     }
   }
 );
@@ -260,9 +248,7 @@ organizationRouter.put(
         data: dbReadyObject,
       });
     } catch (error) {
-      // Handle errors
-      console.log(error);
-      return res.status(400).send({ error: error.message });
+      return sendErrorResponse(res, error);
     }
   }
 );
@@ -296,9 +282,7 @@ organizationRouter.put(
         .status(200)
         .json({ success: true, message: "Organization Deleted." });
     } catch (error) {
-      // Handle errors
-      console.log(error);
-      return res.status(500).send({ error: error.message });
+      return sendErrorResponse(res, error);
     }
   }
 );

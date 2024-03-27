@@ -8,7 +8,11 @@ import express from "express";
 import UserCollection from "../database/models/user.js";
 import authorization from "../services/authorizationMiddleware/authorization.js";
 import hashPassword from "../services/encryption/hashPassword.js";
-import { doesUserAlreadyExists, truthyCheck } from "../utility/extensions.js";
+import {
+  doesUserAlreadyExists,
+  truthyCheck,
+  sendErrorResponse,
+} from "../utility/extensions.js";
 import { emailRegex } from "../utility/regex.js";
 
 dotenv.config();
@@ -66,11 +70,7 @@ organizationUsersRouter.get(
         data: orgUsers,
       });
     } catch (error) {
-      console.log(
-        "organizationUsersApi.get.v2.organizationUsers Get Users.Error:",
-        error
-      );
-      res.status(500).send({ status: "error", error });
+      return sendErrorResponse(res, error);
     }
   }
 );
@@ -180,8 +180,7 @@ organizationUsersRouter.put(
         data: orgUserData,
       });
     } catch (error) {
-      console.error(error);
-      return res.status(400).send({ error: error.message });
+      return sendErrorResponse(res, error);
     }
   }
 );

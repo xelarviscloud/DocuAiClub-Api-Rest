@@ -1,4 +1,9 @@
-export const truthyCheck = (value) => {
+/**
+ * JS Truthy Check with String UNDEFINED & NULL
+ * @param {*} value
+ * @returns
+ */
+export function truthyCheck(value) {
   let _evaluation = false || null || "" || 0 || NaN || undefined || value;
 
   if (_evaluation == "undefined" || _evaluation == "null") {
@@ -7,7 +12,7 @@ export const truthyCheck = (value) => {
     _evaluation = value;
   }
   return _evaluation;
-};
+}
 
 /**
  * Help function: doesUserAlreadyExists
@@ -25,3 +30,13 @@ export const doesUserAlreadyExists = async (collections, field, value) => {
   }
   return false;
 };
+
+/**
+ * Send Error Response
+ */
+export function sendErrorResponse(response, error) {
+  console.log(error);
+  return response
+    .status(500)
+    .json({ success: false, message: "Internal server error" });
+}

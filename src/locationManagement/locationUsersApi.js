@@ -5,7 +5,11 @@ import Location from "../database/models/location.js";
 import UserCollection from "../database/models/user.js";
 import authorization from "../services/authorizationMiddleware/authorization.js";
 import hashPassword from "../services/encryption/hashPassword.js";
-import { doesUserAlreadyExists, truthyCheck } from "../utility/extensions.js";
+import {
+  doesUserAlreadyExists,
+  truthyCheck,
+  sendErrorResponse,
+} from "../utility/extensions.js";
 import { emailRegex } from "../utility/regex.js";
 
 dotenv.config();
@@ -64,11 +68,7 @@ locationUsersRouter.get(
       });
       //}
     } catch (error) {
-      console.log(
-        "locationUsersRouter.get.v2.locationUsers Get Users.Error:",
-        error
-      );
-      res.status(500).send({ status: "error", error });
+      return sendErrorResponse(res, error);
     }
   }
 );
@@ -192,8 +192,7 @@ locationUsersRouter.post(
         data: orgUserData,
       });
     } catch (error) {
-      console.error(error);
-      return res.status(400).send({ error: error.message });
+      return sendErrorResponse(res, error);
     }
   }
 );
@@ -300,8 +299,7 @@ locationUsersRouter.put("/v2/locationUser", authorization, async (req, res) => {
       data: orgUserData,
     });
   } catch (error) {
-    console.error(error);
-    return res.status(400).send({ error: error.message });
+    return sendErrorResponse(res, error);
   }
 });
 export default locationUsersRouter;
