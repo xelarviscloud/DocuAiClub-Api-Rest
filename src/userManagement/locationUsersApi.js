@@ -15,6 +15,7 @@ const locationUsersRouter = express.Router();
 
 /**
  * GOOD
+ * POST: New Location User
  */
 locationUsersRouter.post(
   "/v2/locationUser",

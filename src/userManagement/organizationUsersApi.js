@@ -21,6 +21,9 @@ const organizationUsersRouter = express.Router();
 
 /**
  * GOOD
+ * GET: All Users
+ * IF ORG ID THen Get ORG Users
+ * IF NO ORG ID Then SUPER ADMIN, GET All ORG USERS
  */
 organizationUsersRouter.get(
   "/v2/organizationUsers",
@@ -81,7 +84,7 @@ organizationUsersRouter.get(
 /**
  * GOOD
  */
-organizationUsersRouter.post(
+organizationUsersRouter.put(
   "/v2/organizationUser",
   authorization,
   async (req, res) => {
@@ -97,7 +100,6 @@ organizationUsersRouter.post(
 
       const _role = "organizationuser";
       const _userOrgId = req.body.organizationId;
-      const _userLocId = req.body.locationId;
 
       const _firstName = req.body.firstName;
       const _lastName = req.body.lastName;
@@ -119,8 +121,6 @@ organizationUsersRouter.post(
         _emailAddress,
         _phoneNumber,
       ];
-
-      console.log(requiredFields);
 
       if (requiredFields.some((field) => !field)) {
         res.status(401).send({
@@ -154,33 +154,32 @@ organizationUsersRouter.post(
       }
 
       if (
-        await doesUserAlreadyExists([UserCollection], "username", _userName)
+        !(await doesUserAlreadyExists([UserCollection], "userName", _userName))
       ) {
         return res.status(400).send({
-          error: "Username is not available. Please choose different Username.",
+          error: "Invalid Username.",
         });
       }
 
-      let fileUrl = "";
-      let is_default = true;
       // Save data in the database collection
-      const orgUserData = new UserCollection({
-        userName: _userName,
-        password: _password,
-        userOrganizationId: _userOrgId,
-        role: _role,
+      const orgUserData = await UserCollection.updateOne(
+        { userName: _userName },
+        {
+          $set: {
+            password: _password,
+            role: _role,
 
-        firstName: _firstName,
-        lastName: _lastName,
-        emailAddress: _emailAddress,
-        phoneNumber: _phoneNumber,
+            firstName: _firstName,
+            lastName: _lastName,
+            emailAddress: _emailAddress,
+            phoneNumber: _phoneNumber,
 
-        fileUrl: _fileUrl,
-        is_verified: true,
-        createdAt: new Date(),
-      });
-
-      await orgUserData.save();
+            fileUrl: _fileUrl,
+            is_verified: true,
+            createdAt: new Date(),
+          },
+        }
+      );
 
       res.status(201).send({
         message: "Organization User added Successfully",

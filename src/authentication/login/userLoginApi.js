@@ -51,7 +51,7 @@ loginRouter.post("/v2/user/login", async (req, res) => {
     });
 
     const userOrganization = orgs[0];
-    console.log("test", dbUser, userOrganization);
+    console.log("test", organizationId, userOrganization);
 
     if (
       role == "superadmin" ||
