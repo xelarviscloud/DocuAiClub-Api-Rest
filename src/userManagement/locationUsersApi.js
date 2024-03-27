@@ -1,14 +1,14 @@
 import express from "express";
 import dotenv from "dotenv";
 
-import uuid4 from "uuid4";
-
-import { shortCircuitEvaluation } from "../utility/extensions.js";
+import { truthyCheck } from "../utility/extensions.js";
 import UserCollection from "../models/user.js";
 import Location from "../models/location.js";
 import { emailRegex } from "../utility/regex.js";
 import authorization from "../services/authorizationMiddleware/authorization.js";
 import { doesUserAlreadyExists } from "../utility/extensions.js";
+import hashPassword from "../services/encryption/hashpassword.js";
+
 dotenv.config();
 
 const locationUsersRouter = express.Router();
@@ -31,11 +31,8 @@ locationUsersRouter.get(
 
       // If Id=All then SUPERADMIN requesting all users to display
       // If Id= Specific Org Id then get Users for that Org only.
-      const locIdQuery = shortCircuitEvaluation(req.query?.locationId);
-      const orgIdQuery = shortCircuitEvaluation(req.query?.organizationId);
-
-      console.log(locIdQuery, orgIdQuery);
-      console.log(req.query?.locationId, req.query?.organizationId);
+      const locIdQuery = truthyCheck(req.query?.locationId);
+      const orgIdQuery = truthyCheck(req.query?.organizationId);
 
       let locUsers = await UserCollection.aggregate([
         {
@@ -113,14 +110,13 @@ locationUsersRouter.post(
 
         _role,
         _userLocId,
+        _userOrgId,
 
         _firstName,
         _lastName,
         _emailAddress,
         _phoneNumber,
       ];
-
-      //console.log(requiredFields);
 
       if (requiredFields.some((field) => !field)) {
         res.status(401).send({
@@ -161,24 +157,24 @@ locationUsersRouter.post(
         });
       }
 
-      let fileUrl = "";
-      let is_default = true;
-      // find OrgId if not found.
-      if (_userOrgId) {
+      let _test = truthyCheck(_userOrgId);
+      console.log("_test", _test);
+      if (!_test) {
         const _orgs = await Location.find({
           locationId: _userLocId,
         });
-        _userOrgId = _orgs[0]?.orgUserData;
+        console.log("usr loc org", _orgs);
+        _userOrgId = _orgs[0]?.locationOrgId;
       }
 
-      console.log("_userOrgId", _userOrgId);
       // Save data in the database collection
       const orgUserData = new UserCollection({
         userName: _userName,
         password: _password,
-        userOrganizationId: _userOrgId,
-        userLocationId: _userLocId,
         role: _role,
+
+        userLocationId: _userLocId,
+        userOrganizationId: _userOrgId,
 
         firstName: _firstName,
         lastName: _lastName,
@@ -287,7 +283,7 @@ locationUsersRouter.put("/v2/locationUser", authorization, async (req, res) => {
       {
         $set: {
           userName: _userName,
-          password: _password,
+          password: hashPassword(_password),
 
           firstName: _firstName,
           lastName: _lastName,

@@ -6,7 +6,7 @@ import { emailRegex, phoneRegex } from "../utility/regex.js";
 import { calculatePagination } from "../services/pagination/paginationFunction.js";
 import { SearchFilter } from "../services/searching/searchingFilters.js";
 import OrganizationCollection from "../models/organization.js";
-import { shortCircuitEvaluation } from "../utility/extensions.js";
+import { truthyCheck } from "../utility/extensions.js";
 
 const locationRouter = express.Router();
 
@@ -29,7 +29,7 @@ locationRouter.get("/v2/locations/get", async (req, res) => {
     const search = req.query.search || "";
     const searchFilter = SearchFilter(search);
 
-    const orgIdQuery = shortCircuitEvaluation(_orgId);
+    const orgIdQuery = truthyCheck(_orgId);
 
     // const locations = await Location.find({
     //   ...searchFilter,
@@ -55,7 +55,6 @@ locationRouter.get("/v2/locations/get", async (req, res) => {
       },
     ]);
 
-    //console.log("loc", _orgId);
     return res.status(200).send({
       success: true,
       data: locations,
@@ -99,7 +98,6 @@ locationRouter.get("/v2/location/get/:locationId", async (req, res) => {
       },
     ]);
 
-    console.log("loc detail", _locId, locationData);
     return res.status(200).send({
       success: true,
       data: locationData[0],

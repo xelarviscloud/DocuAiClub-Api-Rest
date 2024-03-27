@@ -10,10 +10,8 @@ import uuid4 from "uuid4";
 import UserCollection from "../models/user.js";
 import { emailRegex } from "../utility/regex.js";
 import authorization from "../services/authorizationMiddleware/authorization.js";
-import {
-  doesUserAlreadyExists,
-  shortCircuitEvaluation,
-} from "../utility/extensions.js";
+import { doesUserAlreadyExists, truthyCheck } from "../utility/extensions.js";
+import hashPassword from "../services/encryption/hashpassword.js";
 
 dotenv.config();
 
@@ -38,11 +36,10 @@ organizationUsersRouter.get(
         return;
       }
 
-      // If Id=All then SUPERADMIN requesting all users to display
+      // If Id=All then SUPER ADMIN requesting all users to display
       // If Id= Specific Org Id then get Users for that Org only.
-      const orgIdQuery = shortCircuitEvaluation(req.query?.organizationId);
+      const orgIdQuery = truthyCheck(req.query?.organizationId);
 
-      console.log(orgIdQuery);
       const orgUsers = await UserCollection.aggregate([
         {
           $match: {
@@ -60,7 +57,6 @@ organizationUsersRouter.get(
         },
       ]);
 
-      console.log(orgUsers);
       // .find({
       //   role: "organizationadmin",
       //   organizationid: orgIdQuery || { $ne: null },
@@ -166,7 +162,7 @@ organizationUsersRouter.put(
         { userName: _userName },
         {
           $set: {
-            password: _password,
+            password: hashPassword(_password),
             role: _role,
 
             firstName: _firstName,

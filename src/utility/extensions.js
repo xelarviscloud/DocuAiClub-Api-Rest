@@ -1,4 +1,4 @@
-export const shortCircuitEvaluation = (value) => {
+export const truthyCheck = (value) => {
   let _evaluation = false || null || "" || 0 || NaN || undefined || value;
 
   if (_evaluation == "undefined" || _evaluation == "null") {

@@ -61,6 +61,17 @@ const UserSchema = new mongoose.Schema({
 UserSchema.pre("save", async function (next) {
   try {
     // Hash the password fields before saving
+    this.password = hashPassword(this.password);
+    return next();
+  } catch (error) {
+    console.log(error);
+    return next();
+  }
+});
+
+UserSchema.pre("update", async function (next) {
+  try {
+    // Hash the password fields before saving
     this.password = await hashPassword(this.password);
     return next();
   } catch (error) {
