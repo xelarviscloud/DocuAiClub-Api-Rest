@@ -15,6 +15,7 @@ import { calculatePagination } from "../services/pagination/paginationFunction.j
 import { SearchFilter } from "../services/searching/searchingFilters.js";
 import { emailRegex, phoneRegex } from "../utility/regex.js";
 import { sendErrorResponse } from "../utility/extensions.js";
+
 const organizationRouter = express.Router();
 
 /**

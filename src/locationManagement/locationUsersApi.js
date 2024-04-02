@@ -12,7 +12,10 @@ import {
 } from "../utility/extensions.js";
 import { emailRegex } from "../utility/regex.js";
 
+import multer from "multer";
 dotenv.config();
+
+const formDataMulter = multer().none();
 
 const locationUsersRouter = express.Router();
 

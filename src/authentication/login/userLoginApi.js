@@ -51,20 +51,28 @@ loginRouter.post("/v2/user/login", async (req, res) => {
     });
 
     const userOrganization = orgs[0];
-    console.log("test", organizationId, userOrganization);
 
     if (
       role == "superadmin" ||
       role == "organizationuser" ||
       role == "locationuser"
     ) {
+      const userId = dbUser._id;
       const email = dbUser.email;
-      const username = dbUser.username;
+      const userName = dbUser.userName;
       const locationId = dbUser.userLocationId;
       const jwtKey = "staysolve123";
       // Generate JWT
       const accessToken = jwt.sign(
-        { email, username, role, organizationId, locationId, userOrganization },
+        {
+          email,
+          userName,
+          userId,
+          role,
+          organizationId,
+          locationId,
+          userOrganization,
+        },
         jwtKey
       );
 

@@ -13,6 +13,7 @@ import locationRouter from "./locationManagement/locationsApi.js";
 import organizationRouter from "./organizationManagement/organizationsApi.js";
 import locationUsersRouter from "./locationManagement/locationUsersApi.js";
 import organizationUsersRouter from "./organizationManagement/organizationUsersApi.js";
+import fileRouter from "./fileManagement/fileApi.js";
 // configuration of .env file
 dotenv.config();
 
@@ -70,7 +71,15 @@ app.use(cors());
 app.use(bodyParser.json({ limit: "20mb" }));
 app.use(bodyParser.urlencoded({ limit: "20mb", extended: true }));
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(multer().none());
+//app.use(multer().none());
+//const upload = multer().single("file");
+//app.use(upload);
+//app.use(multer().none());
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  })
+);
 app.use(express.json());
 
 app.use(cookieParser());
@@ -82,6 +91,7 @@ app.use(organizationRouter);
 app.use(locationRouter);
 app.use(organizationUsersRouter);
 app.use(locationUsersRouter);
+app.use(fileRouter);
 const port = process.env.PORT || 4000;
 // health check
 app.get("/", async (req, res) => {
