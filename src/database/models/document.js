@@ -19,6 +19,9 @@ const documentSchema = new mongoose.Schema({
   metadata: {
     type: mongoose.SchemaTypes.Mixed,
   },
+  status: {
+    type: String,
+  },
   notes: {
     type: String,
   },
@@ -38,6 +41,6 @@ const documentSchema = new mongoose.Schema({
   },
 });
 
-const Location = new mongoose.model("document", documentSchema);
+const DocumentCollection = new mongoose.model("document", documentSchema);
 
-export default Location;
+export default DocumentCollection;

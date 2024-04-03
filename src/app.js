@@ -5,7 +5,6 @@ import dotenv from "dotenv";
 import "dotenv/config";
 import express from "express";
 import jwt from "jsonwebtoken";
-import multer from "multer";
 
 import loginRouter from "./authentication/login/userLoginApi.js";
 import databaseRouter from "./healthcheck/mongodb-healthcheck.js";
@@ -13,7 +12,7 @@ import locationRouter from "./locationManagement/locationsApi.js";
 import organizationRouter from "./organizationManagement/organizationsApi.js";
 import locationUsersRouter from "./locationManagement/locationUsersApi.js";
 import organizationUsersRouter from "./organizationManagement/organizationUsersApi.js";
-import fileRouter from "./fileManagement/fileApi.js";
+import documentRouter from "./documentManagement/documentApi.js";
 // configuration of .env file
 dotenv.config();
 
@@ -91,7 +90,8 @@ app.use(organizationRouter);
 app.use(locationRouter);
 app.use(organizationUsersRouter);
 app.use(locationUsersRouter);
-app.use(fileRouter);
+app.use(documentRouter);
+
 const port = process.env.PORT || 4000;
 // health check
 app.get("/", async (req, res) => {
