@@ -82,6 +82,7 @@ locationUsersRouter.get(
  */
 locationUsersRouter.post(
   "/v2/locationUser",
+  formDataMulter,
   authorization,
   async (req, res) => {
     try {
@@ -119,7 +120,7 @@ locationUsersRouter.post(
         _emailAddress,
         _phoneNumber,
       ];
-
+      console.log(requiredFields);
       if (requiredFields.some((field) => !field)) {
         res.status(401).send({
           status: "failed",
@@ -204,105 +205,110 @@ locationUsersRouter.post(
  * GOOD
  * PUT: Location User
  */
-locationUsersRouter.put("/v2/locationUser", authorization, async (req, res) => {
-  try {
-    if (req.role !== "superadmin" && req.role !== "organizationuser") {
-      res.status(403).send("Invalid Authorization.");
-      return;
-    }
-
-    const _userName = req.body.userName;
-    const _password = req.body.password;
-    const _confirmPassword = req.body.confirmPassword;
-
-    const _role = "locationuser";
-    const _userLocId = req.body.locationId;
-
-    const _firstName = req.body.firstName;
-    const _lastName = req.body.lastName;
-    const _emailAddress = req.body.emailAddress;
-    const _phoneNumber = req.body.phoneNumber;
-    const _fileUrl = req.body.fileUrl;
-
-    // Verify the incoming data
-    const requiredFields = [
-      _userName,
-      _password,
-      _confirmPassword,
-
-      _role,
-      _userLocId,
-
-      _firstName,
-      _lastName,
-      _emailAddress,
-      _phoneNumber,
-    ];
-
-    if (requiredFields.some((field) => !field)) {
-      res.status(401).send({
-        status: "failed",
-        error: "Required field(s) missing.",
-      });
-      return;
-    }
-
-    // Validate email format
-    if (!emailRegex.test(_emailAddress)) {
-      return res.status(401).send({
-        status: "failed",
-        error: "Invalid Email Address.",
-      });
-    }
-
-    // Check if password contains uppercase, lowercase, special character, and number
-    if (
-      !/(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}/.test(_password)
-    ) {
-      return res.status(401).send({
-        status: "failed",
-        error: "Invalid Password complexity requirements.",
-      });
-    }
-
-    // Check if new password matches confirm password
-    if (_password !== _confirmPassword) {
-      return res.status(400).send({ error: "Passwords do not match." });
-    }
-
-    if (
-      !(await doesUserAlreadyExists([UserCollection], "userName", _userName))
-    ) {
-      return res.status(400).send({
-        error: "Invalid Username.",
-      });
-    }
-
-    // Save data in the database collection
-    const orgUserData = await UserCollection.updateOne(
-      { userName: _userName },
-      {
-        $set: {
-          userName: _userName,
-          password: hashPassword(_password),
-
-          firstName: _firstName,
-          lastName: _lastName,
-          emailAddress: _emailAddress,
-          phoneNumber: _phoneNumber,
-
-          fileUrl: _fileUrl,
-          updatedAt: new Date(),
-        },
+locationUsersRouter.put(
+  "/v2/locationUser",
+  formDataMulter,
+  authorization,
+  async (req, res) => {
+    try {
+      if (req.role !== "superadmin" && req.role !== "organizationuser") {
+        res.status(403).send("Invalid Authorization.");
+        return;
       }
-    );
 
-    res.status(201).send({
-      message: "Location User updated Successfully",
-      data: orgUserData,
-    });
-  } catch (error) {
-    return sendErrorResponse(res, error);
+      const _userName = req.body.userName;
+      const _password = req.body.password;
+      const _confirmPassword = req.body.confirmPassword;
+
+      const _role = "locationuser";
+      const _userLocId = req.body.locationId;
+
+      const _firstName = req.body.firstName;
+      const _lastName = req.body.lastName;
+      const _emailAddress = req.body.emailAddress;
+      const _phoneNumber = req.body.phoneNumber;
+      const _fileUrl = req.body.fileUrl;
+
+      // Verify the incoming data
+      const requiredFields = [
+        _userName,
+        _password,
+        _confirmPassword,
+
+        _role,
+        _userLocId,
+
+        _firstName,
+        _lastName,
+        _emailAddress,
+        _phoneNumber,
+      ];
+
+      if (requiredFields.some((field) => !field)) {
+        res.status(401).send({
+          status: "failed",
+          error: "Required field(s) missing.",
+        });
+        return;
+      }
+
+      // Validate email format
+      if (!emailRegex.test(_emailAddress)) {
+        return res.status(401).send({
+          status: "failed",
+          error: "Invalid Email Address.",
+        });
+      }
+
+      // Check if password contains uppercase, lowercase, special character, and number
+      if (
+        !/(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}/.test(_password)
+      ) {
+        return res.status(401).send({
+          status: "failed",
+          error: "Invalid Password complexity requirements.",
+        });
+      }
+
+      // Check if new password matches confirm password
+      if (_password !== _confirmPassword) {
+        return res.status(400).send({ error: "Passwords do not match." });
+      }
+
+      if (
+        !(await doesUserAlreadyExists([UserCollection], "userName", _userName))
+      ) {
+        return res.status(400).send({
+          error: "Invalid Username.",
+        });
+      }
+
+      // Save data in the database collection
+      const orgUserData = await UserCollection.updateOne(
+        { userName: _userName },
+        {
+          $set: {
+            userName: _userName,
+            password: hashPassword(_password),
+
+            firstName: _firstName,
+            lastName: _lastName,
+            emailAddress: _emailAddress,
+            phoneNumber: _phoneNumber,
+
+            fileUrl: _fileUrl,
+            updatedAt: new Date(),
+          },
+        }
+      );
+
+      res.status(201).send({
+        message: "Location User updated Successfully",
+        data: orgUserData,
+      });
+    } catch (error) {
+      return sendErrorResponse(res, error);
+    }
   }
-});
+);
 export default locationUsersRouter;
