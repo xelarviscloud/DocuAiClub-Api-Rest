@@ -22,6 +22,9 @@ const documentSchema = new mongoose.Schema({
   status: {
     type: String,
   },
+  blobPath: {
+    type: String,
+  },
   notes: {
     type: String,
   },

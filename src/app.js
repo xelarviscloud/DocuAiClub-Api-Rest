@@ -13,6 +13,7 @@ import organizationRouter from "./organizationManagement/organizationsApi.js";
 import locationUsersRouter from "./locationManagement/locationUsersApi.js";
 import organizationUsersRouter from "./organizationManagement/organizationUsersApi.js";
 import documentRouter from "./documentManagement/documentApi.js";
+import azureBlobRouter from "./documentManagement/azureBlobApi.js";
 // configuration of .env file
 dotenv.config();
 
@@ -91,6 +92,7 @@ app.use(locationRouter);
 app.use(organizationUsersRouter);
 app.use(locationUsersRouter);
 app.use(documentRouter);
+app.use(azureBlobRouter);
 
 const port = process.env.PORT || 4000;
 // health check
