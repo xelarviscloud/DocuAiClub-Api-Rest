@@ -57,35 +57,43 @@ azureBlobRouter.get("/v2/blob/downloadPdf", async (req, res) => {
 
 azureBlobRouter.get("/v2/blob/downloadPdfToPages", async (req, res) => {
   try {
-    const _blobName = "03fd9cfc20b0-4bc2-a3a9-bc5abedfcca4/1 (2).pdf";
+    const _blobName = "03fd9cfc20b0-4bc2-a3a9-bc5abedfcca4/yteste.pdf";
     const connStr = process.env.AZURE_STORAGE_CONNECTION;
     const containerName = process.env.AZURE_STORAGE_CONTAINER;
     console.log("blobPath", _blobName);
-    var blobSvc = azure.createBlobService(connStr);
-    const blob = new Blob(["hello world"]);
-    const stream = blob.stream();
-    const newStream = new Readable({
-      read() {
-        this.push(someBuffer);
-      },
-    });
-    blobSvc.getBlobToStream(
-      containerName,
-      _blobName,
-      newStream,
-      function (error) {
-        if (!error) {
-          console.log("stream", newStream);
-        }
-        // if (!error) {
-        //   res.end();
-        // } else {
-        //   res.end();
-        // }
-      }
+    const blobServiceClient = await BlobServiceClient.fromConnectionString(
+      connStr
     );
+    // Get a reference to a container
+    const containerClient = await blobServiceClient.getContainerClient(
+      containerName
+    );
+    // Get a block blob client
+    const blockBlobClient = containerClient.getBlockBlobClient(_blobName);
+    const data = await blockBlobClient.downloadToBuffer(0);
+    const pdfDoc = await PDFDocument.load(data);
+    const numberOfPages = pdfDoc.getPages().length;
+    console.log("data", numberOfPages);
 
-    return res.status(200).send("good");
+    for (let i = 0; i < numberOfPages; i++) {
+      // Create a new "sub" document
+      const subDocument = await PDFDocument.create();
+      // copy the page at current index
+      const [copiedPage] = await subDocument.copyPages(pdfDoc, [i]);
+      subDocument.addPage(copiedPage);
+      const pdfBytes = await subDocument.save();
+      console.log("data", pdfBytes);
+      const blockBlobClient = containerClient.getBlockBlobClient(
+        `03fd9cfc20b0-4bc2-a3a9-bc5abedfcca4/Page_${i}.pdf`
+      );
+      const uploadBlobResponse = await blockBlobClient.upload(
+        pdfBytes,
+        pdfBytes.length
+      );
+
+      //let test = await blockBlobClient.uploadData(pdfBytes);
+    }
+    return res.status(200).send(data);
   } catch (error) {
     return sendErrorResponse(res, error);
   }
