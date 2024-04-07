@@ -6,6 +6,7 @@ import DocumentCollection from "../database/models/document.js";
 import { BlobServiceClient } from "@azure/storage-blob";
 import fs from "fs";
 import azure from "azure-storage";
+import PageCollection from "../database/models/page.js";
 dotenv.config();
 
 const documentRouter = express.Router();
@@ -51,7 +52,12 @@ documentRouter.post(
 
       await documentData.save();
       // Queue Message
-
+      queueMessage({
+        metadata: req.file,
+        locationId: _locId,
+        userId: _userId,
+        userName: _userName,
+      });
       // Send success response
       return res.status(200).send({
         message: "File Uploaded Successfully",
@@ -61,6 +67,20 @@ documentRouter.post(
     }
   }
 );
+
+function queueMessage(message) {
+  const connStr = process.env.AZURE_STORAGE_CONNECTION;
+  var queueSvc = azure.createQueueService(connStr);
+  queueSvc.createMessage(
+    "document-upload-dev-que",
+    Buffer.from(JSON.stringify(message)).toString("base64"),
+    function (error, result, response) {
+      if (!error) {
+        // Message inserted
+      }
+    }
+  );
+}
 
 documentRouter.get("/v2/file/download", async (req, res) => {
   try {
@@ -183,4 +203,29 @@ async function streamToText(readable) {
   }
   return data;
 }
+
+/**
+ * GET: Get File Details by Location Id
+ */
+documentRouter.get("/v2/pages/location/:locationId", async (req, res) => {
+  try {
+    const _locationId = req.params.locationId;
+
+    const pages = await PageCollection.aggregate([
+      {
+        $match: {
+          locationId: _locationId,
+          isDeleted: { $ne: true },
+        },
+      },
+    ]);
+
+    return res.status(200).send({
+      success: true,
+      pages,
+    });
+  } catch (error) {
+    sendErrorResponse(error);
+  }
+});
 export default documentRouter;
