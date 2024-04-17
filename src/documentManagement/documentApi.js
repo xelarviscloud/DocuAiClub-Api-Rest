@@ -251,17 +251,17 @@ documentRouter.get("/v2/pages/search", async (req, res) => {
         },
         {
           "tags.arrivalDate": {
-            $gte: _arrivalDate,
+            $gte: _arrivalDate | "",
           },
         },
         {
           "tags.departureDate": {
-            $lte: _departureDate,
+            $lte: _departureDate | "",
           },
         },
       ],
     });
-
+    console.log("pages", _pages);
     return res.status(200).send(_pages);
   } catch (error) {
     return sendErrorResponse(res, error);
