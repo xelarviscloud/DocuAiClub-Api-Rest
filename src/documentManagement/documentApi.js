@@ -1,5 +1,5 @@
 import express from "express";
-import { sendErrorResponse } from "../utility/extensions.js";
+import { sendErrorResponse, truthyCheck } from "../utility/extensions.js";
 import upload from "../services/multerFileUpload/multerFileUpload.js";
 import dotenv from "dotenv";
 import DocumentCollection from "../database/models/document.js";
@@ -234,11 +234,26 @@ documentRouter.get("/v2/pages/search", async (req, res) => {
     console.log("Page Search", req.query);
 
     const _confirmationNumber = req.query.confirmationNumber;
-    const _arrivalDate = req.query.arrivalDate;
-    const _departureDate = req.query.departureDate;
+    let _arrivalDate = req.query.arrivalDate;
+    let _departureDate = req.query.departureDate;
     const _name = req.query.name;
 
-    console.log("search", _name, req.query);
+    console.log(
+      _arrivalDate,
+      _departureDate,
+      truthyCheck(_arrivalDate),
+      truthyCheck(_departureDate)
+    );
+
+    if (!truthyCheck(_arrivalDate)) {
+      _arrivalDate = "9999-99-99";
+    }
+    if (!truthyCheck(_departureDate)) {
+      _departureDate = "0000-00-00";
+    }
+
+    console.log(_arrivalDate, _departureDate);
+
     const _pages = await PageCollection.find({
       $or: [
         {
@@ -251,17 +266,17 @@ documentRouter.get("/v2/pages/search", async (req, res) => {
         },
         {
           "tags.arrivalDate": {
-            $gte: _arrivalDate | "",
+            $gte: _arrivalDate,
           },
         },
         {
           "tags.departureDate": {
-            $lte: _departureDate | "",
+            $lte: _departureDate,
           },
         },
       ],
     });
-    console.log("pages", _pages);
+    //console.log("pages", _pages);
     return res.status(200).send(_pages);
   } catch (error) {
     return sendErrorResponse(res, error);

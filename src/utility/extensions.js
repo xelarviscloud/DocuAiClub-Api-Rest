@@ -6,7 +6,11 @@
 export function truthyCheck(value) {
   let _evaluation = false || null || "" || 0 || NaN || undefined || value;
 
-  if (_evaluation == "undefined" || _evaluation == "null") {
+  if (
+    _evaluation == "undefined" ||
+    _evaluation == "null" ||
+    _evaluation == ""
+  ) {
     _evaluation = false;
   } else {
     _evaluation = value;
