@@ -234,8 +234,8 @@ documentRouter.get("/v2/pages/search", async (req, res) => {
     console.log("Page Search", req.query);
 
     const _confirmationNumber = req.query.confirmationNumber;
-    const _arrival = req.query.arrival;
-    const _departure = req.query.departure;
+    const _arrivalDate = req.query.arrivalDate;
+    const _departureDate = req.query.departureDate;
     const _name = req.query.name;
 
     console.log("search", _name, req.query);
@@ -250,13 +250,13 @@ documentRouter.get("/v2/pages/search", async (req, res) => {
           },
         },
         {
-          "tags.arrival": {
-            $gte: _arrival,
+          "tags.arrivalDate": {
+            $gte: _arrivalDate,
           },
         },
         {
-          "tags.departure": {
-            $lte: _departure,
+          "tags.departureDate": {
+            $lte: _departureDate,
           },
         },
       ],
