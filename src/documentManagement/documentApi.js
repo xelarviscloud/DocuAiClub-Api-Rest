@@ -228,4 +228,44 @@ documentRouter.get("/v2/pages/location/:locationId", async (req, res) => {
     sendErrorResponse(error);
   }
 });
+
+documentRouter.get("/v2/pages/search", async (req, res) => {
+  try {
+    console.log("Page Search", req.query);
+
+    const _confirmationNumber = req.query.confirmationNumber;
+    const _arrival = req.query.arrival;
+    const _departure = req.query.departure;
+    const _name = req.query.name;
+
+    console.log("search", _name, req.query);
+    const _pages = await PageCollection.find({
+      $or: [
+        {
+          "tags.name": { $regex: ".*" + _name + ".*" },
+        },
+        {
+          "tags.confirmationNumber": {
+            $regex: ".*" + _confirmationNumber + ".*",
+          },
+        },
+        {
+          "tags.arrival": {
+            $gte: _arrival,
+          },
+        },
+        {
+          "tags.departure": {
+            $lte: _departure,
+          },
+        },
+      ],
+    });
+
+    return res.status(200).send(_pages);
+  } catch (error) {
+    return sendErrorResponse(res, error);
+  }
+});
+
 export default documentRouter;
