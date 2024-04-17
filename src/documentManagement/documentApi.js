@@ -238,21 +238,12 @@ documentRouter.get("/v2/pages/search", async (req, res) => {
     let _departureDate = req.query.departureDate;
     const _name = req.query.name;
 
-    console.log(
-      _arrivalDate,
-      _departureDate,
-      truthyCheck(_arrivalDate),
-      truthyCheck(_departureDate)
-    );
-
     if (!truthyCheck(_arrivalDate)) {
       _arrivalDate = "9999-99-99";
     }
     if (!truthyCheck(_departureDate)) {
       _departureDate = "0000-00-00";
     }
-
-    console.log(_arrivalDate, _departureDate);
 
     const _pages = await PageCollection.find({
       $or: [
