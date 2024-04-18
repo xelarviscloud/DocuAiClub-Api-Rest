@@ -30,12 +30,12 @@ const pageSchema = new mongoose.Schema({
   },
 
   createdAt: {
-    type: Number,
+    type: String,
     default: new Date(),
   },
 
   updatedAt: {
-    type: Number,
+    type: String,
   },
 });
 

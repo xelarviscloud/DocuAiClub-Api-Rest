@@ -50,13 +50,15 @@ documentRouter.post(
         blobPath: _blobPath,
       });
 
-      await documentData.save();
+      let result = await documentData.save();
+      console.log("Saved Document Result", result);
       // Queue Message
       queueMessage({
         metadata: req.file,
         locationId: _locId,
         userId: _userId,
         userName: _userName,
+        documentId: result._id,
       });
       // Send success response
       return res.status(200).send({
@@ -233,41 +235,94 @@ documentRouter.get("/v2/pages/search", async (req, res) => {
   try {
     console.log("Page Search", req.query);
 
-    const _confirmationNumber = req.query.confirmationNumber;
+    let _content = req.query.content;
+    let _confirmationNumber = req.query.confirmationNumber;
     let _arrivalDate = req.query.arrivalDate;
     let _departureDate = req.query.departureDate;
-    const _name = req.query.name;
+    let _createdDate = req.query.createdDate;
+    let _name = req.query.name;
+    let _locationId = req.query.locationId;
+    let query = {
+      // $or: [],
+      // $and: [],
+    };
 
-    if (!truthyCheck(_arrivalDate)) {
-      _arrivalDate = "9999-99-99";
-    }
-    if (!truthyCheck(_departureDate)) {
-      _departureDate = "0000-00-00";
+    if (truthyCheck(_locationId)) {
+      if (!query.$and) {
+        query = { $and: [] };
+      }
+      query.$and.push({
+        locationId: _locationId,
+      });
     }
 
-    const _pages = await PageCollection.find({
-      $or: [
-        {
-          "tags.name": { $regex: ".*" + _name + ".*" },
+    if (truthyCheck(_content)) {
+      if (!query.$and) {
+        query = { $and: [] };
+      }
+      query.$and.push({
+        "data.content": { $regex: ".*" + _content?.toLocaleLowerCase() + ".*" },
+      });
+    }
+
+    if (truthyCheck(_confirmationNumber)) {
+      if (!query.$and) {
+        query = { $and: [] };
+      }
+      query.$and.push({
+        "tags.confirmationNumber": {
+          $regex: ".*" + _confirmationNumber + ".*",
         },
-        {
-          "tags.confirmationNumber": {
-            $regex: ".*" + _confirmationNumber + ".*",
-          },
+      });
+    }
+
+    if (truthyCheck(_name)) {
+      if (!query.$and) {
+        query = { $and: [] };
+      }
+      query.$and.push({
+        "tags.name": { $regex: ".*" + _name + ".*" },
+      });
+    }
+
+    if (truthyCheck(_arrivalDate)) {
+      if (!query.$and) {
+        query = { $and: [] };
+      }
+      //query.tags = { $exists: true };
+      query.$and.push({
+        "tags.arrivalDate": {
+          $gte: _arrivalDate,
         },
-        {
-          "tags.arrivalDate": {
-            $gte: _arrivalDate,
-          },
+      });
+    }
+
+    if (truthyCheck(_departureDate)) {
+      if (!query.$and) {
+        query = { $and: [] };
+      }
+      query.$and.push({
+        "tags.departureDate": {
+          $lte: _departureDate,
         },
-        {
-          "tags.departureDate": {
-            $lte: _departureDate,
-          },
+      });
+    }
+
+    if (truthyCheck(_createdDate)) {
+      if (!query.$and) {
+        query = { $and: [] };
+      }
+      query.$and.push({
+        createdAt: {
+          $gte: _createdDate,
         },
-      ],
-    });
-    //console.log("pages", _pages);
+      });
+    }
+
+    console.log("array", query);
+
+    const _pages = await PageCollection.find(query);
+    console.log("pages", _pages.length);
     return res.status(200).send(_pages);
   } catch (error) {
     return sendErrorResponse(res, error);
