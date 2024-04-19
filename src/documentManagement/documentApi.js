@@ -261,7 +261,9 @@ documentRouter.get("/v2/pages/search", async (req, res) => {
         query = { $and: [] };
       }
       query.$and.push({
-        "data.content": { $regex: ".*" + _content?.toLocaleLowerCase() + ".*" },
+        dataContentToSearch: {
+          $regex: ".*" + _content?.toLocaleLowerCase() + ".*",
+        },
       });
     }
 
