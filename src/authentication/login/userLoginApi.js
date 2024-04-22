@@ -163,7 +163,7 @@ loginRouter.post(
         return res.status(400).send({ error: "User Account is not found." });
       }
 
-      if (_password !== _newPassword) {
+      if (_newPassword !== _newConfirmedPassword) {
         return res.status(400).send({ error: "Invalid Passwords." });
       }
       // Validate Password

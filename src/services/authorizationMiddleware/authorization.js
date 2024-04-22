@@ -22,6 +22,7 @@ const authorization = (req, res, next) => {
     const authHeader = req.headers.authorization;
     const jwtTokenFromCookie = req.cookies.jwtToken;
     let token = authHeader?.replace("token ", "").trim();
+    token = token?.replace("Bearer", "").trim();
     token = token || jwtTokenFromCookie?.trim();
 
     if (!token) {
