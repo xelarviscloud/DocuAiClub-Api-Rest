@@ -1,9 +1,20 @@
 import bcrypt from "bcrypt";
 import "dotenv/config";
-import express from "express";
 import jwt from "jsonwebtoken";
 import UserCollection from "../../database/models/user.js";
 import OrganizationCollection from "./../../database/models/organization.js";
+
+import authorization from "../../services/authorizationMiddleware/authorization.js";
+import hashPassword from "../../services/encryption/hashPassword.js";
+
+import multer from "multer";
+
+import dotenv from "dotenv";
+import express from "express";
+
+dotenv.config();
+
+const formDataMulter = multer().none();
 
 const loginRouter = express.Router();
 
@@ -115,5 +126,70 @@ loginRouter.post("/v2/user/login", async (req, res) => {
     res.status(400).send({ error: error.message });
   }
 });
+
+loginRouter.post(
+  "/v2/user/changePassword",
+  formDataMulter,
+  authorization,
+  async (req, res) => {
+    try {
+      // Extract user credentials from the request body
+      const _username = req.body.username;
+      const _currentPassword = req.body.currentPassword;
+      const _newPassword = req.body.newPassword;
+      const _newConfirmedPassword = req.body.newConfirmedPassword;
+
+      // Validate Credentials
+      if (
+        !_username ||
+        !_currentPassword ||
+        !_newPassword ||
+        !_newConfirmedPassword
+      ) {
+        return res.status(401).send({
+          status: "failed",
+          error: "Invalid Password Information.",
+        });
+      }
+
+      const dbUser = await UserCollection.findOne({ userName: _username });
+
+      if (!dbUser) {
+        return res.status(400).send({ error: "Invalid Credentials." });
+      }
+
+      // Check if the user is deleted
+      if (dbUser.isDeleted == "true") {
+        return res.status(400).send({ error: "User Account is not found." });
+      }
+
+      if (_password !== _newPassword) {
+        return res.status(400).send({ error: "Invalid Passwords." });
+      }
+      // Validate Password
+      if (!(await bcrypt.compare(_currentPassword, dbUser.password))) {
+        return res.status(400).send({ error: "Invalid Credentials." });
+      }
+
+      // Save data in the database collection
+      const userData = await UserCollection.updateOne(
+        { userName: _username },
+        {
+          $set: {
+            password: hashPassword(_newPassword),
+            updatedAt: new Date(),
+          },
+        }
+      );
+
+      return res
+        .status(200)
+        .send({ message: "Password Updated Successfully." });
+    } catch (error) {
+      console.error(error);
+      res.status(400).send({ error: error.message });
+    }
+  }
+);
 
 export default loginRouter;
