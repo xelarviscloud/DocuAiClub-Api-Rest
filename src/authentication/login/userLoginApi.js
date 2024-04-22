@@ -61,7 +61,25 @@ loginRouter.post("/v2/user/login", async (req, res) => {
       const email = dbUser.email;
       const userName = dbUser.userName;
       const locationId = dbUser.userLocationId;
+      const firstName = dbUser.firstName;
+      const lastName = dbUser.lastName;
       const jwtKey = "staysolve123";
+
+      let roleDescription = "";
+      switch (dbUser.role) {
+        case "locationuser":
+          roleDescription = "Property Manager";
+          break;
+        case "organizationuser":
+          roleDescription = "Organization Admin";
+          break;
+        case "superadmin":
+          roleDescription = "System Admin";
+          break;
+        default:
+          roleDescription = "";
+          break;
+      }
       // Generate JWT
       const accessToken = jwt.sign(
         {
@@ -69,6 +87,8 @@ loginRouter.post("/v2/user/login", async (req, res) => {
           userName,
           userId,
           role,
+          firstName,
+          lastName,
           organizationId,
           locationId,
           userOrganization,
