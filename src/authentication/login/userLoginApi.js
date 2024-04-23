@@ -103,6 +103,7 @@ loginRouter.post("/v2/user/login", async (req, res) => {
           organizationId,
           locationId,
           userOrganization,
+          roleDescription,
         },
         jwtKey
       );
