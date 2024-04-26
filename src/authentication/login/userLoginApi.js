@@ -7,6 +7,11 @@ import OrganizationCollection from "./../../database/models/organization.js";
 import authorization from "../../services/authorizationMiddleware/authorization.js";
 import hashPassword from "../../services/encryption/hashPassword.js";
 
+import {
+  doesUserAlreadyExists,
+  sendErrorResponse,
+} from "../../utility/extensions.js";
+
 import multer from "multer";
 
 import dotenv from "dotenv";
@@ -189,6 +194,87 @@ loginRouter.post(
     } catch (error) {
       console.error(error);
       res.status(400).send({ error: error.message });
+    }
+  }
+);
+
+loginRouter.put(
+  "/v2/user/updateProfile",
+  formDataMulter,
+  authorization,
+  async (req, res) => {
+    try {
+      if (
+        req.role !== "superadmin" &&
+        req.role !== "organizationuser" &&
+        req.role !== "locationuser"
+      ) {
+        res.status(403).send("Invalid Authorization.");
+        return;
+      }
+
+      const _userName = req.body.userName;
+
+      const _firstName = req.body.firstName;
+      const _lastName = req.body.lastName;
+      const _emailAddress = req.body.emailAddress;
+      const _phoneNumber = req.body.phoneNumber;
+      const _fileUrl = req.body.fileUrl;
+
+      // Verify the incoming data
+      const requiredFields = [
+        _userName,
+        _firstName,
+        _lastName,
+        _emailAddress,
+        _phoneNumber,
+      ];
+
+      if (requiredFields.some((field) => !field)) {
+        res.status(401).send({
+          status: "failed",
+          error: "Required field(s) missing.",
+        });
+        return;
+      }
+
+      // Validate email format
+      if (!emailRegex.test(_emailAddress)) {
+        return res.status(401).send({
+          status: "failed",
+          error: "Invalid Email Address.",
+        });
+      }
+
+      if (
+        !(await doesUserAlreadyExists([UserCollection], "userName", _userName))
+      ) {
+        return res.status(400).send({
+          error: "Invalid Username.",
+        });
+      }
+
+      const userData = await UserCollection.updateOne(
+        { userName: _userName },
+        {
+          $set: {
+            firstName: _firstName,
+            lastName: _lastName,
+            emailAddress: _emailAddress,
+            phoneNumber: _phoneNumber,
+
+            fileUrl: _fileUrl,
+            updatedAt: new Date(),
+          },
+        }
+      );
+
+      res.status(201).send({
+        message: "User updated Successfully",
+        data: userData,
+      });
+    } catch (error) {
+      return sendErrorResponse(res, error);
     }
   }
 );

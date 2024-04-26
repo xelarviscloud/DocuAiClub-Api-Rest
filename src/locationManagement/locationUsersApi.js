@@ -288,7 +288,6 @@ locationUsersRouter.put(
         { userName: _userName },
         {
           $set: {
-            userName: _userName,
             password: hashPassword(_password),
 
             firstName: _firstName,
