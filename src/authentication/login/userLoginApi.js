@@ -74,11 +74,13 @@ loginRouter.post("/v2/user/login", async (req, res) => {
       role == "locationuser"
     ) {
       const userId = dbUser._id;
-      const email = dbUser.email;
+      const emailAddress = dbUser.emailAddress;
       const userName = dbUser.userName;
       const locationId = dbUser.userLocationId;
       const firstName = dbUser.firstName;
       const lastName = dbUser.lastName;
+      const phoneNumber = dbUser.phoneNumber;
+
       const jwtKey = "staysolve123";
 
       let roleDescription = "";
@@ -109,6 +111,8 @@ loginRouter.post("/v2/user/login", async (req, res) => {
           locationId,
           userOrganization,
           roleDescription,
+          emailAddress,
+          phoneNumber,
         },
         jwtKey
       );
