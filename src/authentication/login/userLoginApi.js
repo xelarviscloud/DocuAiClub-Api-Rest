@@ -102,20 +102,25 @@ loginRouter.post("/v2/user/login", async (req, res) => {
       // Generate JWT
       const accessToken = jwt.sign(
         {
-          userName,
           userId,
+          userName,
           role,
-          firstName,
-          lastName,
           organizationId,
           locationId,
           userOrganization,
           roleDescription,
-          emailAddress,
-          phoneNumber,
         },
         jwtKey
       );
+
+      const userInfo = {
+        firstName,
+        lastName,
+        emailAddress,
+        phoneNumber,
+        roleDescription,
+        userName,
+      };
 
       // Store the JWT token in a cookie named "jwtToken"
       res.cookie("jwtToken", accessToken, {
@@ -127,7 +132,9 @@ loginRouter.post("/v2/user/login", async (req, res) => {
       });
 
       // Send a response indicating successful login along with the JWT token
-      return res.status(200).send({ message: "Login Success.", accessToken });
+      return res
+        .status(200)
+        .send({ message: "Login Success.", accessToken, userInfo });
     } else {
       return res.status(200).send({ message: "Invalid Account." });
     }
