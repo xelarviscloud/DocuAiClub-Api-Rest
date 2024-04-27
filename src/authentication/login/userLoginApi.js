@@ -101,7 +101,6 @@ loginRouter.post("/v2/user/login", async (req, res) => {
       // Generate JWT
       const accessToken = jwt.sign(
         {
-          email,
           userName,
           userId,
           role,
