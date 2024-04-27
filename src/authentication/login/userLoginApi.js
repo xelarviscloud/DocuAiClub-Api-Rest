@@ -144,14 +144,14 @@ loginRouter.post("/v2/user/login", async (req, res) => {
   }
 });
 
-loginRouter.post(
+loginRouter.put(
   "/v2/user/changePassword",
   formDataMulter,
   authorization,
   async (req, res) => {
     try {
       // Extract user credentials from the request body
-      const _username = req.body.username;
+      const _username = req.body.userName;
       const _currentPassword = req.body.currentPassword;
       const _newPassword = req.body.newPassword;
       const _newConfirmedPassword = req.body.newConfirmedPassword;
