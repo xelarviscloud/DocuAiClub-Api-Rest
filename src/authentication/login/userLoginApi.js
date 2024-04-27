@@ -6,6 +6,7 @@ import OrganizationCollection from "./../../database/models/organization.js";
 
 import authorization from "../../services/authorizationMiddleware/authorization.js";
 import hashPassword from "../../services/encryption/hashPassword.js";
+import { emailRegex } from "../../utility/regex.js";
 
 import {
   doesUserAlreadyExists,
@@ -202,7 +203,7 @@ loginRouter.post(
 );
 
 loginRouter.put(
-  "/v2/user/updateProfile",
+  "/v2/user/updateUserProfile",
   formDataMulter,
   authorization,
   async (req, res) => {
