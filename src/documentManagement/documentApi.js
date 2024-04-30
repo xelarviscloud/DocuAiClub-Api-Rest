@@ -27,6 +27,7 @@ documentRouter.post(
 
       // Save data in the database Location collection
       const _locId = req.body.locationId;
+      const _orgId = req.body.organizationId;
       const _userId = req.body.userId;
       const _userName = req.body.userName;
       const _fileName = req.body.fileName;
@@ -36,9 +37,10 @@ documentRouter.post(
 
       const documentData = new DocumentCollection({
         locationId: _locId,
+        organizationId: _orgId,
 
         fileId: _fileId,
-        fileName: _fileName,
+        fileName: _fileName?.toLowerCase(),
 
         userId: _userId,
         userName: _userName,

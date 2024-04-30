@@ -4,6 +4,9 @@ const documentSchema = new mongoose.Schema({
   locationId: {
     type: String,
   },
+  organizationId: {
+    type: String,
+  },
   fileId: {
     type: String,
   },
