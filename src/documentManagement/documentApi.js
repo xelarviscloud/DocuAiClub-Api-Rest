@@ -331,4 +331,101 @@ documentRouter.get("/v2/pages/search", async (req, res) => {
   }
 });
 
+documentRouter.get("/v2/documents/search", async (req, res) => {
+  try {
+    console.log("Documents Search", req.query);
+
+    let _content = req.query.content;
+    let _fileName = req.query.fileName;
+    let _arrivalDate = req.query.arrivalDate;
+    let _departureDate = req.query.departureDate;
+    let _createdDate = req.query.createdDate;
+    let _locationId = req.query.locationId;
+    let _organizationId = req.query.organizationId;
+
+    if ((!_locationId && !_organizationId) || !_createdDate) {
+      res.status(401).send({
+        status: "failed",
+        error: "Required field(s) missing.",
+      });
+      return;
+    }
+
+    let query = {
+      // $or: [],
+      // $and: [],
+    };
+
+    if (truthyCheck(_organizationId)) {
+      if (!query.$and) {
+        query = { $and: [] };
+      }
+      query.$and.push({
+        organizationId: _organizationId,
+      });
+    }
+    if (truthyCheck(_locationId)) {
+      if (!query.$and) {
+        query = { $and: [] };
+      }
+      query.$and.push({
+        locationId: _locationId,
+      });
+    }
+
+    if (truthyCheck(_fileName)) {
+      if (!query.$and) {
+        query = { $and: [] };
+      }
+      query.$and.push({
+        fileName: {
+          $regex: ".*" + _fileName?.toLocaleLowerCase() + ".*",
+        },
+      });
+    }
+
+    // if (truthyCheck(_arrivalDate)) {
+    //   if (!query.$and) {
+    //     query = { $and: [] };
+    //   }
+    //   //query.tags = { $exists: true };
+    //   query.$and.push({
+    //     "tags.arrivalDate": {
+    //       $gte: _arrivalDate,
+    //     },
+    //   });
+    // }
+
+    // if (truthyCheck(_departureDate)) {
+    //   if (!query.$and) {
+    //     query = { $and: [] };
+    //   }
+    //   query.$and.push({
+    //     "tags.departureDate": {
+    //       $lte: _departureDate,
+    //     },
+    //   });
+    // }
+
+    // if (truthyCheck(_createdDate)) {
+    //   if (!query.$and) {
+    //     query = { $and: [] };
+    //   }
+    //   query.$and.push({
+    //     createdAt: {
+    //       $gte: _createdDate,
+    //     },
+    //   });
+    // }
+
+    console.log("Query", query);
+
+    const _documents = await DocumentCollection.find(query);
+    console.log("Documents", _documents.length);
+    return res.status(200).send(_documents);
+  } catch (error) {
+    return sendErrorResponse(res, error);
+  }
+});
+
 export default documentRouter;
