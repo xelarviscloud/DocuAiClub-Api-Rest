@@ -56,7 +56,7 @@ documentRouter.post(
       console.log("Saved Document Result", result);
       // Queue Message
       queueMessage({
-        metadata: req.file,
+        metadata: req.file?.toLocaleLowerCase(),
         locationId: _locId,
         userId: _userId,
         userName: _userName,
@@ -337,8 +337,8 @@ documentRouter.get("/v2/documents/search", async (req, res) => {
   try {
     console.log("Documents Search", req.query);
 
-    let _content = req.query.content;
     let _fileName = req.query.fileName;
+    let _status = req.query.status;
     let _arrivalDate = req.query.arrivalDate;
     let _departureDate = req.query.departureDate;
     let _createdDate = req.query.createdDate;
@@ -386,6 +386,16 @@ documentRouter.get("/v2/documents/search", async (req, res) => {
       });
     }
 
+    if (truthyCheck(_status)) {
+      if (!query.$and) {
+        query = { $and: [] };
+      }
+      query.$and.push({
+        status: {
+          $regex: ".*" + _status + ".*",
+        },
+      });
+    }
     // if (truthyCheck(_arrivalDate)) {
     //   if (!query.$and) {
     //     query = { $and: [] };
