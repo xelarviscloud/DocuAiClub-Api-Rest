@@ -30,7 +30,7 @@ documentRouter.post(
       const _orgId = req.body.organizationId;
       const _userId = req.body.userId;
       const _userName = req.body.userName;
-      const _fileName = req.body.fileName;
+      const _fileName = req.body.fileName?.toLowerCase();
       const _fileId = req.file.blob;
       const _notes = req.body.notes;
       const _blobPath = req.file.blob;
@@ -56,7 +56,7 @@ documentRouter.post(
       console.log("Saved Document Result", result);
       // Queue Message
       queueMessage({
-        metadata: req.file?.toLocaleLowerCase(),
+        metadata: req.file,
         locationId: _locId,
         userId: _userId,
         userName: _userName,
@@ -430,11 +430,24 @@ documentRouter.get("/v2/documents/search", async (req, res) => {
     //   });
     // }
 
-    console.log("Query", query);
-
+    const documentsWithPages = await DocumentCollection.aggregate([
+      {
+        $match: {
+          locationId: _locationId,
+        },
+      },
+      {
+        $lookup: {
+          from: "pages",
+          localField: "_id",
+          foreignField: "documentId",
+          as: "vw_doc_pages",
+        },
+      },
+    ]);
     const _documents = await DocumentCollection.find(query);
-    console.log("Documents", _documents.length);
-    return res.status(200).send(_documents);
+    console.log("Documents", documentsWithPages);
+    return res.status(200).send({ documentsWithPages });
   } catch (error) {
     return sendErrorResponse(res, error);
   }

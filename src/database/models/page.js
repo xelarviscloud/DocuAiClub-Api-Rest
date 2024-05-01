@@ -4,6 +4,9 @@ const pageSchema = new mongoose.Schema({
   locationId: {
     type: String,
   },
+  documentId: {
+    type: mongoose.SchemaTypes.ObjectId,
+  },
   data: {
     type: mongoose.SchemaTypes.Mixed,
   },
