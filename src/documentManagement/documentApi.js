@@ -433,7 +433,15 @@ documentRouter.get("/v2/documents/search", async (req, res) => {
     const documentsWithPages = await DocumentCollection.aggregate([
       {
         $match: {
+          $and: [
+            {
+              fileName: {
+                $regex: ".*" + _fileName?.toLocaleLowerCase() + ".*",
+              },
+            },
+          ],
           locationId: _locationId,
+          status: _status,
         },
       },
       {
