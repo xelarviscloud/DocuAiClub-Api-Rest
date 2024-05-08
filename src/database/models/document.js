@@ -41,12 +41,12 @@ const documentSchema = new mongoose.Schema({
   },
 
   createdAt: {
-    type: String,
+    type: Date,
     default: new Date(),
   },
 
   updatedAt: {
-    type: String,
+    type: Date,
   },
 });
 

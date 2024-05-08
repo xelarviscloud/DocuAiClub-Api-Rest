@@ -7,6 +7,7 @@ import { BlobServiceClient } from "@azure/storage-blob";
 import fs from "fs";
 import azure from "azure-storage";
 import PageCollection from "../database/models/page.js";
+import testEmail from "../services/communication/sendEmail.js";
 dotenv.config();
 
 const documentRouter = express.Router();
@@ -312,14 +313,13 @@ documentRouter.get("/v2/pages/search", async (req, res) => {
         },
       });
     }
-
     if (truthyCheck(_createdDate)) {
       if (!query.$and) {
         query = { $and: [] };
       }
       query.$and.push({
         createdAt: {
-          $gte: _createdDate,
+          $gte: new Date(_createdDate),
         },
       });
     }
@@ -342,11 +342,13 @@ documentRouter.get("/v2/documents/search", async (req, res) => {
     let _status = req.query.status;
     let _pageCount = req.query.pageCount;
     let _departureDate = req.query.departureDate;
-    let _createdDate = req.query.createdDate;
+    let _createdStartDate = req.query.createdStartDate;
+    let _createdEndDate = req.query.createdEndDate;
+
     let _locationId = req.query.locationId;
     let _organizationId = req.query.organizationId;
 
-    if ((!_locationId && !_organizationId) || !_createdDate) {
+    if ((!_locationId && !_organizationId) || !_createdStartDate) {
       res.status(401).send({
         status: "failed",
         error: "Required field(s) missing.",
@@ -397,39 +399,7 @@ documentRouter.get("/v2/documents/search", async (req, res) => {
         },
       });
     }
-    // if (truthyCheck(_arrivalDate)) {
-    //   if (!query.$and) {
-    //     query = { $and: [] };
-    //   }
-    //   //query.tags = { $exists: true };
-    //   query.$and.push({
-    //     "tags.arrivalDate": {
-    //       $gte: _arrivalDate,
-    //     },
-    //   });
-    // }
 
-    // if (truthyCheck(_departureDate)) {
-    //   if (!query.$and) {
-    //     query = { $and: [] };
-    //   }
-    //   query.$and.push({
-    //     "tags.departureDate": {
-    //       $lte: _departureDate,
-    //     },
-    //   });
-    // }
-
-    // if (truthyCheck(_createdDate)) {
-    //   if (!query.$and) {
-    //     query = { $and: [] };
-    //   }
-    //   query.$and.push({
-    //     createdAt: {
-    //       $gte: _createdDate,
-    //     },
-    //   });
-    // }
     let _p = truthyCheck(_pageCount)
       ? { $gte: parseInt(_pageCount) }
       : { $ne: null };
@@ -447,6 +417,12 @@ documentRouter.get("/v2/documents/search", async (req, res) => {
           locationId: _locationId,
           status: _status,
           pageCount: _p,
+          createdAt: {
+            $gte: new Date(_createdStartDate),
+          },
+          createdAt: {
+            $lte: addDays(_createdEndDate, 1),
+          },
         },
       },
       {
@@ -458,12 +434,33 @@ documentRouter.get("/v2/documents/search", async (req, res) => {
         },
       },
     ]);
-    const _documents = await DocumentCollection.find(query);
-    console.log("Documents", documentsWithPages);
+
     return res.status(200).send({ documentsWithPages });
   } catch (error) {
     return sendErrorResponse(res, error);
   }
 });
 
+documentRouter.post(
+  "/v2/document/sendTestEmail",
+  upload.single("file"),
+  async (req, res) => {
+    try {
+      console.log("email", req.file, req.body);
+      testEmail();
+      // Send success response
+      return res.status(200).send({
+        message: "Email Sent Successfully",
+      });
+    } catch (error) {
+      return sendErrorResponse(res, error);
+    }
+  }
+);
+
+function addDays(date, days) {
+  var result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+}
 export default documentRouter;
