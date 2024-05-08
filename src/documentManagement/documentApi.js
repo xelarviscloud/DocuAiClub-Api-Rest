@@ -429,7 +429,8 @@ documentRouter.get("/v2/documents/search", async (req, res) => {
     //     },
     //   });
     // }
-
+    let _p = truthyCheck(_pageCount) ? parseInt(_pageCount) : { $ne: null };
+    console.log("_p", _p);
     const documentsWithPages = await DocumentCollection.aggregate([
       {
         $match: {
@@ -442,7 +443,7 @@ documentRouter.get("/v2/documents/search", async (req, res) => {
           ],
           locationId: _locationId,
           status: _status,
-          pageCount: parseInt(_pageCount),
+          pageCount: _p,
         },
       },
       {
