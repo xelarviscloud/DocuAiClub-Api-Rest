@@ -49,6 +49,7 @@ documentRouter.post(
         notes: _notes,
 
         status: "New",
+        pageCount: 0,
         blobPath: _blobPath,
       });
 

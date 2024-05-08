@@ -25,6 +25,9 @@ const documentSchema = new mongoose.Schema({
   status: {
     type: String,
   },
+  pageCount: {
+    type: Number,
+  },
   blobPath: {
     type: String,
   },
@@ -38,12 +41,12 @@ const documentSchema = new mongoose.Schema({
   },
 
   createdAt: {
-    type: Number,
+    type: String,
     default: new Date(),
   },
 
   updatedAt: {
-    type: Number,
+    type: String,
   },
 });
 
