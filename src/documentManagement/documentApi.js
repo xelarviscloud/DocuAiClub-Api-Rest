@@ -339,7 +339,7 @@ documentRouter.get("/v2/documents/search", async (req, res) => {
 
     let _fileName = req.query.fileName;
     let _status = req.query.status;
-    let _arrivalDate = req.query.arrivalDate;
+    let _pageCount = req.query.pageCount;
     let _departureDate = req.query.departureDate;
     let _createdDate = req.query.createdDate;
     let _locationId = req.query.locationId;
@@ -442,6 +442,7 @@ documentRouter.get("/v2/documents/search", async (req, res) => {
           ],
           locationId: _locationId,
           status: _status,
+          pageCount: parseInt(_pageCount),
         },
       },
       {
