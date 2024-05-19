@@ -441,6 +441,19 @@ documentRouter.get("/v2/documents/search", async (req, res) => {
   }
 });
 
+documentRouter.post("/v2/document/shareDocument", async (req, res) => {
+  try {
+    console.log("email", req.file, req.body);
+    testEmail();
+    // Send success response
+    return res.status(200).send({
+      message: "Email Sent Successfully",
+    });
+  } catch (error) {
+    return sendErrorResponse(res, error);
+  }
+});
+
 documentRouter.post(
   "/v2/document/sendTestEmail",
   upload.single("file"),
@@ -463,4 +476,5 @@ function addDays(date, days) {
   result.setDate(result.getDate() + days);
   return result;
 }
+
 export default documentRouter;
