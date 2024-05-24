@@ -22,23 +22,7 @@ const app = express();
 
 const corsOptions = {
   //To allow requests from client
-  origin: [
-    "http://localhost:3001",
-    "http://localhost:3000",
-    "http://localhost:3002",
-    "http://localhost:3003",
-    "http://localhost:3004",
-    "http://localhost:3005",
-    "http://localhost:4000",
-    "http://192.168.29.29:4000",
-    "http://192.168.29.29:3000",
-    "http://192.168.29.29:3001",
-    "http://192.168.29.189:3002",
-    "http://192.168.29.29:3003",
-    "http://192.168.29.29:3002",
-    "http://44.202.32.14",
-    "http://54.162.14.61",
-  ],
+  origin: [*],
   credentials: true,
   exposedHeaders: ["set-cookie"],
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
