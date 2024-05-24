@@ -76,9 +76,10 @@ documentRouter.post(
 
 function queueMessage(message) {
   const connStr = process.env.AZURE_STORAGE_CONNECTION;
+  const queuName = process.env.AZURE_STORAGE_QUEUE;
   var queueSvc = azure.createQueueService(connStr);
   queueSvc.createMessage(
-    "document-upload-dev-que",
+    queuName,
     Buffer.from(JSON.stringify(message)).toString("base64"),
     function (error, result, response) {
       if (!error) {
