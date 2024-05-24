@@ -20,34 +20,34 @@ dotenv.config();
 // configuration server express
 const app = express();
 
-const corsOptions = {
-  //To allow requests from client
-  origin: [*],
-  credentials: true,
-  exposedHeaders: ["set-cookie"],
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  allowedHeaders: [
-    "Origin",
-    "X-Requested-With",
-    "Content-Type",
-    "Accept",
-    "set-cookie",
-    "Access-Control-Allow-Origin",
-    "Cookie",
-    "cookie",
-    "set-cookie",
-    "Authorization",
-    "Referer",
-    "User-Agent",
-    "Accept-Encoding",
-    "Accept-Language",
-    "Connection",
-    "Host",
-    "Origin",
-  ],
-};
+// const corsOptions = {
+//   //To allow requests from client
+//   origin: [*],
+//   credentials: true,
+//   exposedHeaders: ["set-cookie"],
+//   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+//   allowedHeaders: [
+//     "Origin",
+//     "X-Requested-With",
+//     "Content-Type",
+//     "Accept",
+//     "set-cookie",
+//     "Access-Control-Allow-Origin",
+//     "Cookie",
+//     "cookie",
+//     "set-cookie",
+//     "Authorization",
+//     "Referer",
+//     "User-Agent",
+//     "Accept-Encoding",
+//     "Accept-Language",
+//     "Connection",
+//     "Host",
+//     "Origin",
+//   ],
+// };
 
-app.use(cors(corsOptions));
+//app.use(cors(corsOptions));
 
 app.use(cors());
 
