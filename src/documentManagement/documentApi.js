@@ -52,6 +52,8 @@ documentRouter.post(
         status: "New",
         pageCount: 0,
         blobPath: _blobPath,
+
+        createdAt: new Date(),
       });
 
       let result = await documentData.save();
