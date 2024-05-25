@@ -156,7 +156,8 @@ documentRouter.get("/v2/documents/location/:locationId", async (req, res) => {
 
     if (!truthyCheck(_locationId)) {
       return res.status(200).send({
-        success: true,
+        success: false,
+        message: "Missing Param",
       });
     }
 
@@ -252,8 +253,6 @@ documentRouter.get("/v2/pages/location/:locationId", async (req, res) => {
 
 documentRouter.get("/v2/pages/search", async (req, res) => {
   try {
-    console.log("Page Search", req.query);
-
     let _content = req.query.content;
     let _confirmationNumber = req.query.confirmationNumber;
     let _arrivalDate = req.query.arrivalDate;
@@ -265,6 +264,13 @@ documentRouter.get("/v2/pages/search", async (req, res) => {
       // $or: [],
       // $and: [],
     };
+
+    if (!truthyCheck(_locationId)) {
+      return res.status(200).send({
+        success: false,
+        message: "Missing Param",
+      });
+    }
 
     if (truthyCheck(_locationId)) {
       if (!query.$and) {
@@ -362,6 +368,19 @@ documentRouter.get("/v2/documents/search", async (req, res) => {
 
     let _locationId = req.query.locationId;
     let _organizationId = req.query.organizationId;
+
+    if (!truthyCheck(_organizationId)) {
+      return res.status(200).send({
+        success: false,
+        message: "Missing Param",
+      });
+    }
+    if (!truthyCheck(_locationId)) {
+      return res.status(200).send({
+        success: false,
+        message: "Missing Param",
+      });
+    }
 
     if ((!_locationId && !_organizationId) || !_createdStartDate) {
       res.status(401).send({
