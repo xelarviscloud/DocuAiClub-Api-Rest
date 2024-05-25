@@ -154,6 +154,12 @@ documentRouter.get("/v2/documents/location/:locationId", async (req, res) => {
   try {
     const _locationId = req.params.locationId;
 
+    if (!truthyCheck(_locationId)) {
+      return res.status(200).send({
+        success: true,
+      });
+    }
+
     const documents = await DocumentCollection.aggregate([
       {
         $match: {
@@ -218,7 +224,13 @@ async function streamToText(readable) {
  */
 documentRouter.get("/v2/pages/location/:locationId", async (req, res) => {
   try {
-    const _locationId = req.params.locationId;
+    const _locationId = req?.params?.locationId;
+
+    if (!truthyCheck(_locationId)) {
+      return res.status(200).send({
+        success: true,
+      });
+    }
 
     const pages = await PageCollection.aggregate([
       {
