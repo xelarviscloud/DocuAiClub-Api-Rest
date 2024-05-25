@@ -6,7 +6,7 @@ name: Build and deploy Node.js app to Azure Web App - wa-docuai-bff-api
 on:
   push:
     branches:
-      - main
+      - dev
   workflow_dispatch:
 
 jobs:
@@ -59,4 +59,4 @@ jobs:
           app-name: 'wa-docuai-bff-api'
           slot-name: 'Production'
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_D589FA1211CD4770B3059843C3254C88 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_A544F6B2BC9E45BCABC685B2DEBE393B }}
