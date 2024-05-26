@@ -7,7 +7,8 @@ import { BlobServiceClient } from "@azure/storage-blob";
 import fs from "fs";
 import azure from "azure-storage";
 import PageCollection from "../database/models/page.js";
-import testEmail from "../services/communication/sendEmail.js";
+import getAzureBlobAsBuffer from "../services/azureServices/blobService.js";
+import { sendEmail } from "../services/communication/sendEmail.js";
 dotenv.config();
 
 const documentRouter = express.Router();
@@ -478,12 +479,38 @@ documentRouter.get("/v2/documents/search", async (req, res) => {
 
 documentRouter.post("/v2/document/shareDocument", async (req, res) => {
   try {
-    console.log("email", req.file, req.body);
-    testEmail();
-    // Send success response
-    return res.status(200).send({
-      message: "Email Sent Successfully",
-    });
+    console.log("email--", req.body);
+
+    const _emailAddress = req.body.emailAddress;
+    const _blobPath = req.body.blobPath;
+    const _emailSubject = req.body.emailSubject;
+    const _emailBody = req.body.emailBody;
+
+    const buffer = await getAzureBlobAsBuffer(_blobPath);
+
+    sendEmail(
+      _emailAddress,
+      _emailSubject,
+      _emailBody,
+      _blobPath?.split("/")[1],
+      buffer
+    )
+      .then((result) => {
+        return res.status(200).send({
+          message: "Email Sent Successfully",
+        });
+      })
+      .catch((err) => {
+        return sendErrorResponse(res, err);
+      });
+  } catch (error) {
+    return sendErrorResponse(res, error);
+  }
+});
+
+documentRouter.post("/v2/pages/sharePage", async (req, res) => {
+  try {
+    await blobPathToBuffer(req, res);
   } catch (error) {
     return sendErrorResponse(res, error);
   }
