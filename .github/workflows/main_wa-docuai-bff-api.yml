@@ -6,7 +6,7 @@ name: Build and deploy Node.js app to Azure Web App - docuai-rest-v1
 on:
   push:
     branches:
-      - dev
+      - main
   workflow_dispatch:
 
 jobs:
@@ -56,7 +56,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'docuai-rest-v1'
+          app-name: 'wa-docuai-bff-api'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_A544F6B2BC9E45BCABC685B2DEBE393B }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_D589FA1211CD4770B3059843C3254C88  }}
           package: .
