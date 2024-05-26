@@ -7,7 +7,8 @@ import { BlobServiceClient } from "@azure/storage-blob";
 import fs from "fs";
 import azure from "azure-storage";
 import PageCollection from "../database/models/page.js";
-import sendEmail from "../services/communication/sendEmail.js";
+import getAzureBlobAsBuffer from "../services/azureServices/blobService.js";
+import { sendEmail } from "../services/communication/sendEmail.js";
 dotenv.config();
 
 const documentRouter = express.Router();
@@ -476,38 +477,32 @@ documentRouter.get("/v2/documents/search", async (req, res) => {
   }
 });
 
-async function blobPathToBuffer(req, res) {
-  const _emailAddress = req.body.emailAddress;
-  const _blobPath = req.body.blobPath;
-  const _fileName = _blobPath.split('/')[1]
-  const connStr = process.env.AZURE_STORAGE_CONNECTION;
-  const containerName = process.env.AZURE_STORAGE_CONTAINER;
-
-  const blobServiceClient = BlobServiceClient.fromConnectionString(connStr);
-  const containerClient = blobServiceClient.getContainerClient(containerName);
-  const blockBlobClient = containerClient.getBlockBlobClient(_blobPath);
-
-  const downloadBlockBlobResponse = await blockBlobClient.download(0);
-
-  const fileStream = downloadBlockBlobResponse.readableStreamBody;
-
-  // // Convert the file stream to a Buffer
-  const chunks = [];
-  for await (const chunk of fileStream) {
-    chunks.push(chunk);
-  }
-  const fileBuffer = Buffer.concat(chunks)
-
-  sendEmail(fileBuffer, _fileName, _emailAddress);
-  // Send success response
-  return res.status(200).send({
-    message: "Email Sent Successfully",
-  });
-}
-
 documentRouter.post("/v2/document/shareDocument", async (req, res) => {
   try {
-    await blobPathToBuffer(req, res)
+    console.log("email--", req.body);
+
+    const _emailAddress = req.body.emailAddress;
+    const _blobPath = req.body.blobPath;
+    const _emailSubject = req.body.emailSubject;
+    const _emailBody = req.body.emailBody;
+
+    const buffer = await getAzureBlobAsBuffer(_blobPath);
+
+    sendEmail(
+      _emailAddress,
+      _emailSubject,
+      _emailBody,
+      _blobPath?.split("/")[1],
+      buffer
+    )
+      .then((result) => {
+        return res.status(200).send({
+          message: "Email Sent Successfully",
+        });
+      })
+      .catch((err) => {
+        return sendErrorResponse(res, err);
+      });
   } catch (error) {
     return sendErrorResponse(res, error);
   }
@@ -515,7 +510,7 @@ documentRouter.post("/v2/document/shareDocument", async (req, res) => {
 
 documentRouter.post("/v2/pages/sharePage", async (req, res) => {
   try {
-    await blobPathToBuffer(req, res)
+    await blobPathToBuffer(req, res);
   } catch (error) {
     return sendErrorResponse(res, error);
   }
