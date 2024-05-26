@@ -372,13 +372,13 @@ documentRouter.get("/v2/documents/search", async (req, res) => {
     if (!truthyCheck(_organizationId)) {
       return res.status(200).send({
         success: false,
-        message: "Missing Param",
+        message: "Missing Param OrgId",
       });
     }
     if (!truthyCheck(_locationId)) {
       return res.status(200).send({
         success: false,
-        message: "Missing Param",
+        message: "Missing Param LocationId",
       });
     }
 
@@ -469,6 +469,7 @@ documentRouter.get("/v2/documents/search", async (req, res) => {
       },
     ]);
 
+    console.log("documents", documentsWithPages);
     return res.status(200).send({ documentsWithPages });
   } catch (error) {
     return sendErrorResponse(res, error);
