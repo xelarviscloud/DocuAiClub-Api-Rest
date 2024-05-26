@@ -61,12 +61,12 @@ alertsRouter.post("/v2/alerts", authorization, async (req, res) => {
 alertsRouter.put("/v2/alerts", authorization, async (req, res) => {
   try {
     console.log("PUT", req.body);
-    const _alertId = req.body.alertId;
+    const _id = req.body.id;
     const _userId = req.body.userId;
     const _userName = req.body.userName;
     const _orgId = req.body.organizationId;
 
-    if (!_alertId || !_userId || !_userName || !_orgId) {
+    if (!_id || !_userId || !_userName || !_orgId) {
       return res.status(400).json({
         status: "failed",
         error: "Please provide all required fields",
@@ -74,8 +74,8 @@ alertsRouter.put("/v2/alerts", authorization, async (req, res) => {
     }
 
     const uAlert = await UserAlertCollection.updateOne(
-      { alertId: new mongoose.Types.ObjectId(_alertId) },
-      { $set: { status: 1 } }
+      { _id: new mongoose.Types.ObjectId(_id) },
+      { $set: { status: 0 } }
     );
 
     return res.status(200).send({
@@ -102,7 +102,7 @@ alertsRouter.get("/v2/alerts", authorization, async (req, res) => {
     let nReceiverId = new mongoose.Types.ObjectId(_userId);
 
     const uAlerts = await UserAlertCollection.aggregate([
-      { $match: { receiverId: nReceiverId, status: 0 } },
+      { $match: { receiverId: nReceiverId, status: 1 } },
       {
         $lookup: {
           from: "alerts",
