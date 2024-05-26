@@ -7,7 +7,7 @@ import { BlobServiceClient } from "@azure/storage-blob";
 import fs from "fs";
 import azure from "azure-storage";
 import PageCollection from "../database/models/page.js";
-import testEmail from "../services/communication/sendEmail.js";
+import sendEmail from "../services/communication/sendEmail.js";
 dotenv.config();
 
 const documentRouter = express.Router();
@@ -476,14 +476,46 @@ documentRouter.get("/v2/documents/search", async (req, res) => {
   }
 });
 
+async function blobPathToBuffer(req, res) {
+  const _emailAddress = req.body.emailAddress;
+  const _blobPath = req.body.blobPath;
+  const _fileName = _blobPath.split('/')[1]
+  const connStr = process.env.AZURE_STORAGE_CONNECTION;
+  const containerName = process.env.AZURE_STORAGE_CONTAINER;
+
+  const blobServiceClient = BlobServiceClient.fromConnectionString(connStr);
+  const containerClient = blobServiceClient.getContainerClient(containerName);
+  const blockBlobClient = containerClient.getBlockBlobClient(_blobPath);
+
+  const downloadBlockBlobResponse = await blockBlobClient.download(0);
+
+  const fileStream = downloadBlockBlobResponse.readableStreamBody;
+
+  // // Convert the file stream to a Buffer
+  const chunks = [];
+  for await (const chunk of fileStream) {
+    chunks.push(chunk);
+  }
+  const fileBuffer = Buffer.concat(chunks)
+
+  sendEmail(fileBuffer, _fileName, _emailAddress);
+  // Send success response
+  return res.status(200).send({
+    message: "Email Sent Successfully",
+  });
+}
+
 documentRouter.post("/v2/document/shareDocument", async (req, res) => {
   try {
-    console.log("email", req.file, req.body);
-    testEmail();
-    // Send success response
-    return res.status(200).send({
-      message: "Email Sent Successfully",
-    });
+    await blobPathToBuffer(req, res)
+  } catch (error) {
+    return sendErrorResponse(res, error);
+  }
+});
+
+documentRouter.post("/v2/pages/sharePage", async (req, res) => {
+  try {
+    await blobPathToBuffer(req, res)
   } catch (error) {
     return sendErrorResponse(res, error);
   }

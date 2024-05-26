@@ -1,13 +1,24 @@
 import sgMail from "@sendgrid/mail";
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-const msg = {
-  to: "ghori_hitesh@yahoo.com", // Change to your recipient
-  from: "xelarviscloud@gmail.com", // Change to your verified sender
-  subject: "Sending with SendGrid is Fun",
-  text: "and easy to do anywhere, even with Node.js",
-  html: "<strong>and easy to do anywhere, even with Node.js</strong>",
-};
-function testEmail() {
+
+function sendEmail(fileBuffer, fileName, emailAddress) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+  const attachment = {
+    content: fileBuffer.toString('base64'),
+    filename: fileName,
+    type: 'application/pdf',
+    disposition: 'attachment'
+  };
+
+  const msg = {
+    to: emailAddress, // Change to your recipient
+    from: "xelarviscloud@gmail.com", // Change to your verified sender
+    subject: "Requested File",
+    text: "Please find attached file.",
+    // html: "<strong>Please find attached file</strong>",
+    attachments: [attachment]
+  };
+
   sgMail
     .send(msg)
     .then(() => {
@@ -18,4 +29,4 @@ function testEmail() {
     });
 }
 
-export default testEmail;
+export default sendEmail;
