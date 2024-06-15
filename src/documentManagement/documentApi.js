@@ -36,6 +36,11 @@ documentRouter.post(
       const _notes = req.body.notes;
       const _blobPath = req.file.blob?.replace(/ /g, "");
 
+      let fileMetadata = req.file;
+      fileMetadata.originalname = _fileName;
+      fileMetadata.blob = _fileId;
+      fileMetadata.url = metaFile.file.url?.replace(/ /g, "");
+
       const documentData = new DocumentCollection({
         locationId: _locId,
         organizationId: _orgId,
@@ -46,7 +51,7 @@ documentRouter.post(
         userId: _userId,
         userName: _userName,
 
-        metadata: req.file,
+        metadata: fileMetadata,
         notes: _notes,
 
         status: "New",
