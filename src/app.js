@@ -13,6 +13,7 @@ import organizationRouter from "./organizationManagement/organizationsApi.js";
 import locationUsersRouter from "./locationManagement/locationUsersApi.js";
 import organizationUsersRouter from "./organizationManagement/organizationUsersApi.js";
 import documentRouter from "./documentManagement/documentApi.js";
+import documentSearchRouter from "./documentManagement/documentSearchApi.js";
 import azureBlobRouter from "./documentManagement/azureBlobApi.js";
 import alertsRouter from "./notification/alertsApi.js";
 
@@ -78,6 +79,7 @@ app.use(locationRouter);
 app.use(organizationUsersRouter);
 app.use(locationUsersRouter);
 app.use(documentRouter);
+app.use(documentSearchRouter);
 app.use(azureBlobRouter);
 app.use(alertsRouter);
 

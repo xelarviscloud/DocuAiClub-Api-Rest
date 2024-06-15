@@ -6,7 +6,6 @@ import DocumentCollection from "../database/models/document.js";
 import { BlobServiceClient } from "@azure/storage-blob";
 import fs from "fs";
 import azure from "azure-storage";
-import PageCollection from "../database/models/page.js";
 import getAzureBlobAsBuffer from "../services/azureServices/blobService.js";
 import { sendEmail } from "../services/communication/sendEmail.js";
 dotenv.config();
@@ -32,10 +31,10 @@ documentRouter.post(
       const _orgId = req.body.organizationId;
       const _userId = req.body.userId;
       const _userName = req.body.userName;
-      const _fileName = req.body.fileName?.toLowerCase();
-      const _fileId = req.file.blob;
+      const _fileName = req.body.fileName?.replace(" ", "")?.toLowerCase();
+      const _fileId = req.file.blob?.replace(" ", "");
       const _notes = req.body.notes;
-      const _blobPath = req.file.blob;
+      const _blobPath = req.file.blob?.replace(" ", "");
 
       const documentData = new DocumentCollection({
         locationId: _locId,
@@ -222,198 +221,6 @@ async function streamToText(readable) {
   return data;
 }
 
-/**
- * GET: Get File Details by Location Id
- */
-documentRouter.get("/v2/pages/location/:locationId", async (req, res) => {
-  try {
-    const _locationId = req?.params?.locationId;
-
-    if (!truthyCheck(_locationId)) {
-      return res.status(200).send({
-        success: true,
-      });
-    }
-
-    const pages = await PageCollection.aggregate([
-      {
-        $match: {
-          locationId: _locationId,
-          isDeleted: { $ne: true },
-        },
-      },
-    ]);
-
-    return res.status(200).send({
-      success: true,
-      pages,
-    });
-  } catch (error) {
-    sendErrorResponse(error);
-  }
-});
-
-documentRouter.get("/v2/pages/search", async (req, res) => {
-  try {
-    let _content = req.query.content;
-    let _confirmationNumber = req.query.confirmationNumber;
-    let _arrivalDate = req.query.arrivalDate;
-    let _departureDate = req.query.departureDate;
-    let _createdDate = req.query.createdDate;
-    let _name = req.query.name;
-    let _locationId = req.query.locationId;
-    let query = {
-      // $or: [],
-      // $and: [],
-    };
-
-    if (!truthyCheck(_locationId)) {
-      return res.status(200).send({
-        success: false,
-        message: "Missing Param",
-      });
-    }
-
-    if (truthyCheck(_locationId)) {
-      if (!query.$and) {
-        query = { $and: [] };
-      }
-      query.$and.push({
-        locationId: _locationId,
-      });
-    }
-
-    if (truthyCheck(_content)) {
-      if (!query.$and) {
-        query = { $and: [] };
-      }
-      query.$and.push({
-        dataContentToSearch: {
-          $regex: ".*" + _content?.toLocaleLowerCase() + ".*",
-        },
-      });
-    }
-
-    if (truthyCheck(_confirmationNumber)) {
-      if (!query.$and) {
-        query = { $and: [] };
-      }
-      query.$and.push({
-        "tags.confirmationNumber": {
-          $regex: ".*" + _confirmationNumber + ".*",
-        },
-      });
-    }
-
-    if (truthyCheck(_name)) {
-      if (!query.$and) {
-        query = { $and: [] };
-      }
-      query.$and.push({
-        "tags.name": { $regex: ".*" + _name + ".*" },
-      });
-    }
-
-    if (truthyCheck(_arrivalDate)) {
-      if (!query.$and) {
-        query = { $and: [] };
-      }
-      //query.tags = { $exists: true };
-      query.$and.push({
-        "tags.arrivalDate": {
-          $gte: _arrivalDate,
-        },
-      });
-    }
-
-    if (truthyCheck(_departureDate)) {
-      if (!query.$and) {
-        query = { $and: [] };
-      }
-      query.$and.push({
-        "tags.departureDate": {
-          $lte: _departureDate,
-        },
-      });
-    }
-    if (truthyCheck(_createdDate)) {
-      if (!query.$and) {
-        query = { $and: [] };
-      }
-      query.$and.push({
-        createdAt: {
-          $gte: new Date(_createdDate),
-        },
-      });
-    }
-
-    console.log("array", query);
-
-    const _pages = await PageCollection.find(query);
-    console.log("pages", _pages.length);
-    return res.status(200).send(_pages);
-  } catch (error) {
-    return sendErrorResponse(res, error);
-  }
-});
-
-documentRouter.get("/v2/documents/search", async (req, res) => {
-  try {
-    console.log("Documents Search", req.query);
-
-    let _fileName = req.query.fileName;
-    let _status = req.query.status;
-    let _pageCount = req.query.pageCount;
-    let _departureDate = req.query.departureDate;
-    let _createdStartDate = req.query.createdStartDate;
-    let _createdEndDate = req.query.createdEndDate;
-
-    let _locationId = req.query.locationId;
-    let _organizationId = req.query.organizationId;
-
-    let _p = truthyCheck(_pageCount)
-      ? { $gte: parseInt(_pageCount) }
-      : { $ne: null };
-    console.log("_p", _p);
-    const documentsWithPages = await DocumentCollection.aggregate([
-      {
-        $match: {
-          $and: [
-            {
-              fileName: {
-                $regex: ".*" + _fileName?.toLocaleLowerCase() + ".*",
-              },
-            },
-          ],
-          //locationId: _locationId,
-          organizationId: _organizationId,
-          status: _status,
-          pageCount: _p,
-          createdAt: {
-            $gte: new Date(_createdStartDate),
-          },
-          createdAt: {
-            $lte: addDays(_createdEndDate, 1),
-          },
-        },
-      },
-      {
-        $lookup: {
-          from: "pages",
-          localField: "_id",
-          foreignField: "documentId",
-          as: "vw_doc_pages",
-        },
-      },
-    ]);
-
-    console.log("documents", documentsWithPages);
-    return res.status(200).send({ documentsWithPages });
-  } catch (error) {
-    return sendErrorResponse(res, error);
-  }
-});
-
 documentRouter.post("/v2/document/shareDocument", async (req, res) => {
   try {
     console.log("email--", req.body);
@@ -469,11 +276,5 @@ documentRouter.post(
     }
   }
 );
-
-function addDays(date, days) {
-  var result = new Date(date);
-  result.setDate(result.getDate() + days);
-  return result;
-}
 
 export default documentRouter;
