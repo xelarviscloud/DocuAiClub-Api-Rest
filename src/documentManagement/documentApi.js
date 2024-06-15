@@ -31,10 +31,10 @@ documentRouter.post(
       const _orgId = req.body.organizationId;
       const _userId = req.body.userId;
       const _userName = req.body.userName;
-      const _fileName = req.body.fileName?.replace(" ", "")?.toLowerCase();
-      const _fileId = req.file.blob?.replace(" ", "");
+      const _fileName = req.body.fileName.replace(/ /g, "")?.toLowerCase();
+      const _fileId = req.file.blob?.replace(/ /g, "");
       const _notes = req.body.notes;
-      const _blobPath = req.file.blob?.replace(" ", "");
+      const _blobPath = req.file.blob?.replace(/ /g, "");
 
       const documentData = new DocumentCollection({
         locationId: _locId,
@@ -57,7 +57,7 @@ documentRouter.post(
       });
 
       let result = await documentData.save();
-      console.log("Saved Document Result", result);
+
       // Queue Message
       queueMessage({
         metadata: req.file,
