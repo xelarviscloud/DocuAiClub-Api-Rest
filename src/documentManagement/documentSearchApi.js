@@ -82,10 +82,9 @@ documentSearchRouter.get("/v2/pages/search", async (req, res) => {
     let _createdDate = req.query.createdDate;
     let _name = req.query.name;
     let _locationId = req.query.locationId;
-    let query = {
-      // $or: [],
-      // $and: [],
-    };
+    let _organizationId = req.query.organizationId;
+
+    let query = {};
 
     if (!truthyCheck(_locationId)) {
       return res.status(200).send({
@@ -100,6 +99,15 @@ documentSearchRouter.get("/v2/pages/search", async (req, res) => {
       }
       query.$and.push({
         locationId: _locationId,
+      });
+    }
+
+    if (truthyCheck(_organizationId)) {
+      if (!query.$and) {
+        query = { $and: [] };
+      }
+      query.$and.push({
+        organizationId: _organizationId,
       });
     }
 

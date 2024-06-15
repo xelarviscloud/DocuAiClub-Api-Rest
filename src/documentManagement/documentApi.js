@@ -62,6 +62,7 @@ documentRouter.post(
       queueMessage({
         metadata: req.file,
         locationId: _locId,
+        organizationId: _orgId,
         userId: _userId,
         userName: _userName,
         documentId: result._id,
