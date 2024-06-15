@@ -86,12 +86,14 @@ documentSearchRouter.get("/v2/pages/search", async (req, res) => {
 
     let query = {};
 
-    if (!truthyCheck(_locationId)) {
+    if (!truthyCheck(_locationId) && !truthyCheck(_organizationId)) {
       return res.status(200).send({
         success: false,
         message: "Missing Param",
       });
     }
+
+    console.log(_organizationId, _locationId);
 
     if (truthyCheck(_locationId)) {
       if (!query.$and) {
