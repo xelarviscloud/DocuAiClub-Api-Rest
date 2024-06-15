@@ -144,6 +144,7 @@ documentRouter.get("/v2/file/download", async (req, res) => {
 
     return res.status(200).send(writable);
   } catch (error) {
+    console.log(error);
     return sendErrorResponse(res, error);
   }
 });
@@ -370,71 +371,6 @@ documentRouter.get("/v2/documents/search", async (req, res) => {
     let _locationId = req.query.locationId;
     let _organizationId = req.query.organizationId;
 
-    if (!truthyCheck(_organizationId)) {
-      return res.status(200).send({
-        success: false,
-        message: "Missing Param OrgId",
-      });
-    }
-    if (!truthyCheck(_locationId)) {
-      return res.status(200).send({
-        success: false,
-        message: "Missing Param LocationId",
-      });
-    }
-
-    if ((!_locationId && !_organizationId) || !_createdStartDate) {
-      res.status(401).send({
-        status: "failed",
-        error: "Required field(s) missing.",
-      });
-      return;
-    }
-
-    let query = {
-      // $or: [],
-      // $and: [],
-    };
-
-    if (truthyCheck(_organizationId)) {
-      if (!query.$and) {
-        query = { $and: [] };
-      }
-      query.$and.push({
-        organizationId: _organizationId,
-      });
-    }
-    if (truthyCheck(_locationId)) {
-      if (!query.$and) {
-        query = { $and: [] };
-      }
-      query.$and.push({
-        locationId: _locationId,
-      });
-    }
-
-    if (truthyCheck(_fileName)) {
-      if (!query.$and) {
-        query = { $and: [] };
-      }
-      query.$and.push({
-        fileName: {
-          $regex: ".*" + _fileName?.toLocaleLowerCase() + ".*",
-        },
-      });
-    }
-
-    if (truthyCheck(_status)) {
-      if (!query.$and) {
-        query = { $and: [] };
-      }
-      query.$and.push({
-        status: {
-          $regex: ".*" + _status + ".*",
-        },
-      });
-    }
-
     let _p = truthyCheck(_pageCount)
       ? { $gte: parseInt(_pageCount) }
       : { $ne: null };
@@ -449,7 +385,8 @@ documentRouter.get("/v2/documents/search", async (req, res) => {
               },
             },
           ],
-          locationId: _locationId,
+          //locationId: _locationId,
+          organizationId: _organizationId,
           status: _status,
           pageCount: _p,
           createdAt: {
