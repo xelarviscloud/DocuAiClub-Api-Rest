@@ -31,15 +31,12 @@ documentRouter.post(
       const _orgId = req.body.organizationId;
       const _userId = req.body.userId;
       const _userName = req.body.userName;
-      const _fileName = req.body.fileName.replace(/ /g, "")?.toLowerCase();
-      const _fileId = req.file.blob?.replace(/ /g, "");
+      const _fileName = req.body.fileName.toLowerCase();
+      const _fileId = req.file.blob;
       const _notes = req.body.notes;
-      const _blobPath = req.file.blob?.replace(/ /g, "");
+      const _blobPath = req.file.blob;
 
       let fileMetadata = req.file;
-      fileMetadata.originalname = _fileName;
-      fileMetadata.blob = _fileId;
-      fileMetadata.url = metaFile.file.url?.replace(/ /g, "");
 
       const documentData = new DocumentCollection({
         locationId: _locId,
