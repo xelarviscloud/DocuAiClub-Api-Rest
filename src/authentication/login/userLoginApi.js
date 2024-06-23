@@ -87,7 +87,7 @@ loginRouter.post("/v2/user/login", async (req, res) => {
       let roleDescription = "";
       switch (dbUser.role) {
         case "locationuser":
-          roleDescription = "Property Manager";
+          roleDescription = "Location Manager";
           break;
         case "organizationuser":
           roleDescription = "Organization Admin";
