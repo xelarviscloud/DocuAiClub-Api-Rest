@@ -151,7 +151,7 @@ documentSearchRouter.get("/v2/pages/search", async (req, res) => {
       //query.tags = { $exists: true };
       query.$and.push({
         "tags.arrivalDate": {
-          $gte: _arrivalDate,
+          $eq: _arrivalDate,
         },
       });
     }
@@ -162,7 +162,7 @@ documentSearchRouter.get("/v2/pages/search", async (req, res) => {
       }
       query.$and.push({
         "tags.departureDate": {
-          $lte: _departureDate,
+          $eq: _departureDate,
         },
       });
     }
