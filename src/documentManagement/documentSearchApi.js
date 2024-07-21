@@ -220,7 +220,7 @@ documentSearchRouter.get("/v2/documents/search", async (req, res) => {
           pageCount: _p,
           createdAt: {
             $gte: new Date(_createdStartDate),
-            $lt: addDays(_createdEndDate, 1),
+            $lt: moment.utc(addDays(_createdEndDate, 1)),
           },
           // createdAt: {
           //   $gte: new Date(_createdStartDate),
