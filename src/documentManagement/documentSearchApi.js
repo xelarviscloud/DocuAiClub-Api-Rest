@@ -3,6 +3,7 @@ import { sendErrorResponse, truthyCheck } from "../utility/extensions.js";
 import dotenv from "dotenv";
 import DocumentCollection from "../database/models/document.js";
 import PageCollection from "../database/models/page.js";
+import moment from "moment";
 dotenv.config();
 
 const documentSearchRouter = express.Router();
@@ -220,7 +221,7 @@ documentSearchRouter.get("/v2/documents/search", async (req, res) => {
           pageCount: _p,
           createdAt: {
             $gte: new Date(_createdStartDate),
-            $lt: addDays(_createdEndDate, 1),
+            $lte: addDays(_createdEndDate, 1),
           },
           // createdAt: {
           //   $gte: new Date(_createdStartDate),
@@ -241,6 +242,7 @@ documentSearchRouter.get("/v2/documents/search", async (req, res) => {
     ]);
 
     console.log("documents", documentsWithPages);
+
     return res.status(200).send({ documentsWithPages });
   } catch (error) {
     return sendErrorResponse(res, error);
@@ -250,6 +252,7 @@ documentSearchRouter.get("/v2/documents/search", async (req, res) => {
 function addDays(date, days) {
   var result = new Date(date);
   result.setDate(result.getDate() + days);
+  result.setHours(24);
   return result;
 }
 
